@@ -1,0 +1,210 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root {
+  font-family: "Courier New", Courier, monospace;
+  color: #f2f2f2;
+  background: #080808;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { background: #080808; }
+button { font: inherit; }
+
+.game-page, .game-shell { position: relative; width: 100%; width: 100vw; height: 100%; height: 100dvh; min-height: 320px; background: #080808; overflow: hidden; }
+.game-canvas { display: block; width: 100% !important; height: 100% !important; max-width: 100%; max-height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; touch-action: none; }
+.game-vignette { position: absolute; inset: 0; z-index: 2; pointer-events: none; box-shadow: inset 0 0 110px rgba(0,0,0,.72), inset 0 0 1px 1px rgba(255,255,255,.08); }
+.game-shell::before { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: .08; background: repeating-linear-gradient(0deg, transparent 0 3px, #fff 4px, transparent 5px); mix-blend-mode: screen; }
+
+.touch-controls { position: absolute; z-index: 5; inset: auto 18px 18px 18px; display: none; align-items: end; gap: 10px; pointer-events: none; }
+.touch-button { width: 56px; height: 56px; border: 1px solid #777; border-radius: 3px; background: rgba(12,12,12,.78); color: #f2f2f2; font-size: 24px; line-height: 1; box-shadow: 4px 4px 0 rgba(255,255,255,.08); pointer-events: auto; touch-action: none; user-select: none; }
+.touch-button:active { transform: translate(2px, 2px); background: #f2f2f2; color: #080808; box-shadow: 2px 2px 0 rgba(255,255,255,.35); }
+.touch-jump { margin-left: auto; }
+.mobile-note { position: absolute; z-index: 5; left: 18px; bottom: 84px; display: none; color: #777; font-size: 9px; letter-spacing: 1.5px; }
+
+@media (max-width: 700px), (hover: none) {
+  .touch-controls, .mobile-note { display: flex; }
+  .mobile-note { display: block; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-shell::before { display: none; }
+}
+
+.title-screen {
+  position: relative;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 520px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: #080808;
+  color: #f2f2f2;
+  font-family: "Press Start 2P", monospace;
+  image-rendering: pixelated;
+}
+
+.title-screen::before,
+.title-screen::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 0;
+}
+.title-screen::before {
+  opacity: .16;
+  background: repeating-linear-gradient(0deg, transparent 0 3px, #fff 4px, transparent 5px), linear-gradient(90deg, transparent 0 7%, rgba(255,255,255,.08) 7.1%, transparent 7.2% 92.8%, rgba(255,255,255,.08) 92.9%, transparent 93%);
+}
+.title-screen::after {
+  box-shadow: inset 0 0 120px #000, inset 0 0 1px 1px rgba(255,255,255,.18);
+}
+.title-screen__scanlines { position: absolute; inset: 0; opacity: .06; background: repeating-linear-gradient(90deg, #fff 0 1px, transparent 1px 8px); pointer-events: none; }
+.title-screen__content { position: relative; z-index: 1; width: min(760px, calc(100% - 40px)); text-align: center; padding: 34px 20px; }
+.title-screen__eyebrow { color: #8c8c8c; font-size: 10px; letter-spacing: 3px; margin-bottom: 28px; }
+.title-screen__title { margin: 0; font-size: clamp(26px, 5vw, 52px); line-height: 1.35; letter-spacing: 3px; text-shadow: 5px 5px 0 #262626; }
+.title-screen__rule { margin: 26px auto 22px; color: #cfcfcf; letter-spacing: 22px; }
+.title-screen__rule::before, .title-screen__rule::after { content: "—"; color: #555; margin: 0 15px; }
+.title-screen__subtitle { margin: 0; color: #a8a8a8; font-size: 11px; letter-spacing: 2px; }
+.title-screen__menu { display: grid; gap: 14px; max-width: 560px; margin: 48px auto 42px; }
+.title-screen__option { appearance: none; display: flex; align-items: center; gap: 18px; min-height: 64px; padding: 14px 20px; border: 2px solid #555; background: rgba(16,16,16,.86); color: #c4c4c4; font-family: inherit; font-size: 11px; line-height: 1.8; letter-spacing: 1px; text-align: left; cursor: pointer; transition: background .16s ease, color .16s ease, transform .16s ease, border-color .16s ease; }
+.title-screen__option:hover, .title-screen__option:focus-visible { background: #dedede; border-color: #fff; color: #080808; outline: none; transform: translateX(5px); }
+.title-screen__option:active { transform: translate(5px, 2px); }
+.title-screen__option--primary { border-color: #d8d8d8; color: #f4f4f4; }
+.title-screen__option strong { color: inherit; font-size: 9px; }
+.title-screen__cursor { width: 18px; flex: 0 0 18px; color: #aaa; }
+.title-screen__option:hover .title-screen__cursor, .title-screen__option:focus-visible .title-screen__cursor { color: #080808; }
+.title-screen__footer { color: #666; font-size: 9px; letter-spacing: 1px; }
+.title-screen__notice { position: absolute; z-index: 4; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(0,0,0,.78); }
+.title-screen__notice-card { position: relative; width: min(560px, 100%); border: 3px solid #080808; outline: 2px solid #d0d0d0; background: #cfcfcf; color: #080808; padding: 34px 28px 26px; box-shadow: 8px 8px 0 rgba(255,255,255,.16); text-align: center; }
+.title-screen__notice-label { font-size: 13px; letter-spacing: 2px; margin-bottom: 24px; }
+.title-screen__notice-card p { margin: 0 auto 24px; max-width: 430px; font-family: monospace; font-size: 15px; line-height: 1.5; }
+.title-screen__close { position: absolute; top: 8px; right: 10px; border: 0; background: transparent; color: #080808; font: 24px/1 monospace; cursor: pointer; }
+.title-screen__back { border: 2px solid #080808; background: transparent; color: #080808; padding: 10px 16px; font-family: inherit; font-size: 9px; cursor: pointer; }
+.title-screen__back:hover, .title-screen__back:focus-visible { background: #080808; color: #cfcfcf; outline: none; }
+@media (max-width: 700px) {
+  .title-screen__content { padding: 24px 10px; }
+  .title-screen__eyebrow { font-size: 7px; letter-spacing: 1px; }
+  .title-screen__title { font-size: clamp(20px, 8vw, 34px); }
+  .title-screen__option { font-size: 8px; min-height: 58px; padding: 12px 10px; gap: 10px; }
+  .title-screen__option strong { font-size: 7px; }
+  .title-screen__footer { font-size: 7px; line-height: 1.6; }
+}
+
+/* OMA — Offerta formativa */
+.offer-page { position: relative; min-height: 100dvh; height: 100dvh; overflow-y: auto; overflow-x: hidden; background: #080808; color: #101010; font-family: monospace; scroll-behavior: smooth; }
+.offer-page__backdrop { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: #080808 var(--offer-bg) center / cover no-repeat; filter: grayscale(1); }
+.offer-page__backdrop::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,8,8,.14), rgba(8,8,8,.42)); }
+.offer-nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 26px; width: min(1100px, calc(100% - 40px)); margin: 0 auto; padding: 16px 0 14px; color: #eee; border-bottom: 1px solid rgba(255,255,255,.36); background: repeating-linear-gradient(0deg, rgba(255,255,255,.04) 0 1px, transparent 1px 4px), rgba(8,8,8,.9); backdrop-filter: blur(7px); }
+.offer-nav__logo { display: grid; place-items: center; flex: 0 0 auto; width: 54px; height: 38px; overflow: hidden; color: #080808; background: #fff; border: 2px solid #080808; outline: 1px solid #dedede; box-shadow: 4px 4px 0 rgba(255,255,255,.24); text-decoration: none; }
+.offer-nav__logo img { display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.offer-nav__links { display: flex; align-items: center; gap: clamp(12px, 2.4vw, 30px); margin-left: auto; }
+.offer-nav__links a, .offer-nav__game { color: #d0d0d0; font-size: 10px; letter-spacing: 1px; text-decoration: none; transition: color .15s, transform .15s; }
+.offer-nav__links a:hover, .offer-nav__game:hover { color: #fff; transform: translateY(-2px); }
+.offer-nav__game { padding-left: 24px; border-left: 1px solid #555; white-space: nowrap; }
+.offer-nav__game span { color: #fff; font-size: 16px; }
+.offer-hero, .offer-content, .offer-footer { position: relative; z-index: 1; width: min(1100px, calc(100% - 40px)); margin: 0 auto; }
+.offer-hero { min-height: min(680px, calc(100dvh - 70px)); display: flex; align-items: flex-end; justify-content: space-between; padding: clamp(70px, 12vh, 150px) clamp(24px, 6vw, 90px) 80px; background: #f4f4f2; box-shadow: 0 16px 0 rgba(0,0,0,.35); }
+.offer-hero__copy { max-width: 700px; }
+.offer-kicker { margin: 0 0 22px; color: #686868; font-size: 10px; letter-spacing: 2px; }
+.offer-hero h1, .offer-section h2 { margin: 0; font-family: "Press Start 2P", monospace; font-weight: 400; letter-spacing: -1px; line-height: 1.45; }
+.offer-hero h1 { font-size: clamp(30px, 5vw, 70px); color: #0c0c0c; text-shadow: 5px 5px 0 #cfcfcf; }
+.offer-hero__intro { max-width: 420px; margin: 32px 0 28px; color: #3d3d3d; font-size: 16px; line-height: 1.55; }
+.offer-cta { display: inline-flex; gap: 18px; align-items: center; padding: 13px 17px; color: #f3f3f3; background: #101010; border: 2px solid #101010; font-family: "Press Start 2P", monospace; font-size: 9px; letter-spacing: .5px; text-decoration: none; transition: transform .15s, background .15s, color .15s; }
+.offer-cta:hover { transform: translate(4px, 4px); color: #101010; background: transparent; }
+.offer-cta span { font-size: 17px; }
+.offer-hero__stamp { align-self: flex-start; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; color: #555; font-family: "Press Start 2P", monospace; font-size: 32px; line-height: 1.3; text-align: right; transform: none; }
+.offer-hero__stamp img { display: block; width: clamp(112px, 16vw, 180px); height: auto; aspect-ratio: 680 / 681; object-fit: contain; image-rendering: pixelated; }
+.offer-hero__stamp span { font-size: 7px; letter-spacing: 2px; }
+.offer-content { background: #f4f4f2; }
+.offer-section { display: grid; grid-template-columns: minmax(200px, .7fr) 1.3fr; gap: clamp(35px, 8vw, 110px); padding: 100px clamp(24px, 6vw, 90px); border-top: 1px solid #bcbcbc; }
+.offer-section__heading { position: relative; }
+.offer-section__heading h2 { font-size: clamp(21px, 3.2vw, 43px); }
+.offer-section h2 em { color: #777; font-style: normal; }
+.offer-index { display: block; margin-bottom: 28px; color: #888; font-size: 11px; letter-spacing: 2px; }
+.offer-section__body { max-width: 540px; color: #4a4a4a; font-size: 16px; line-height: 1.65; }
+.offer-section__body p { margin: 0 0 20px; }
+.offer-lead { color: #111; font-family: "Press Start 2P", monospace; font-size: 13px; line-height: 1.8; }
+.offer-programs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.offer-program { position: relative; min-height: 250px; padding: 24px 18px; color: #eee; background: #111; border: 1px solid #555; box-shadow: 5px 5px 0 #c7c7c7; }
+.offer-program__number { color: #aaa; font-size: 11px; }
+.offer-program h3 { margin: 50px 0 18px; color: #fff; font-family: "Press Start 2P", monospace; font-size: 11px; font-weight: 400; line-height: 1.7; }
+.offer-program p { color: #bcbcbc; font-size: 13px; line-height: 1.55; }
+.offer-program__arrow { position: absolute; right: 18px; bottom: 14px; color: #fff; font-size: 22px; }
+.offer-section--data { display: block; }
+.offer-section--data .offer-section__heading { display: flex; align-items: baseline; gap: 28px; margin-bottom: 45px; }
+.offer-section--data .offer-index { margin: 0; }
+.offer-data-grid { display: grid; grid-template-columns: 1.45fr .8fr; gap: 18px; }
+.offer-image-placeholder { min-height: 230px; display: grid; place-items: center; color: #777; background: linear-gradient(135deg, #d6d6d6 25%, #ececec 25%, #ececec 50%, #d6d6d6 50%, #d6d6d6 75%, #ececec 75%); background-size: 20px 20px; border: 1px solid #aaa; font-family: "Press Start 2P", monospace; font-size: 9px; letter-spacing: 1px; }
+.offer-image-placeholder--wide { grid-row: span 2; min-height: 480px; }
+.offer-chart-card { padding: 24px; background: #111; color: #eee; border: 1px solid #555; }
+.offer-chart-card__label { margin: 0 0 20px; color: #aaa; font-size: 9px; letter-spacing: 1px; line-height: 1.6; }
+.offer-pie { width: 160px; height: 160px; margin: 12px auto 24px; border-radius: 50%; background: conic-gradient(#ededed 0 45%, #777 45% 70%, #333 70% 100%); border: 8px solid #222; box-shadow: 0 0 0 1px #888; }
+.offer-pie span { display: block; width: 48px; height: 48px; margin: 48px; border-radius: 50%; background: #111; }
+.offer-legend { display: grid; gap: 12px; padding: 0; margin: 0; list-style: none; font-size: 10px; color: #bbb; }
+.offer-legend li { display: flex; align-items: center; gap: 8px; }
+.offer-legend i { width: 10px; height: 10px; display: inline-block; border: 1px solid #aaa; }
+.legend-a { background: #ededed; }.legend-b { background: #777; }.legend-c { background: #333; }
+.offer-legend b { margin-left: auto; color: #fff; font-weight: 400; }
+.offer-section--contact { display: block; padding-bottom: 120px; background: #111; color: #eee; }
+.offer-section--contact .offer-kicker { color: #aaa; }.offer-section--contact h2 { font-size: clamp(25px, 5vw, 62px); }.offer-section--contact h2 em { color: #999; }.offer-contact-copy { max-width: 470px; margin: 30px 0; color: #bcbcbc; font-size: 16px; line-height: 1.6; }.offer-cta--dark { color: #111; background: #eee; border-color: #eee; }.offer-cta--dark:hover { color: #eee; background: transparent; }
+.offer-footer { display: flex; justify-content: space-between; gap: 20px; padding: 25px 0 40px; color: #bdbdbd; font-size: 9px; letter-spacing: 1px; }
+@media (max-width: 760px) {
+  .offer-nav { width: calc(100% - 24px); gap: 12px; padding: 12px 0; }.offer-nav__links { gap: 10px; }.offer-nav__links a:nth-child(n+3) { display: none; }.offer-nav__links a, .offer-nav__game { font-size: 7px; }.offer-nav__game { padding-left: 10px; }.offer-nav__logo { width: 46px; height: 32px; }.offer-hero__stamp img { width: 94px; }
+  .offer-hero, .offer-content, .offer-footer { width: calc(100% - 24px); }.offer-hero { min-height: 680px; padding: 65px 22px 55px; align-items: flex-end; }.offer-hero__stamp { position: absolute; top: 60px; right: 24px; font-size: 22px; }.offer-hero h1 { font-size: clamp(25px, 9vw, 40px); }.offer-hero__intro { font-size: 14px; }.offer-section { grid-template-columns: 1fr; gap: 35px; padding: 68px 22px; }.offer-programs { grid-template-columns: 1fr; }.offer-program { min-height: 210px; }.offer-section--data .offer-section__heading { display: block; }.offer-section--data .offer-section__heading .offer-index { margin-bottom: 24px; }.offer-data-grid { grid-template-columns: 1fr; }.offer-image-placeholder--wide { grid-row: auto; min-height: 260px; }.offer-chart-card { min-height: 330px; }.offer-footer { display: block; padding: 22px 0 34px; line-height: 2; }.offer-page__backdrop { background-image: var(--offer-bg-mobile); background-position: center top; }
+}
+
+.offer-subjects { margin-top: 34px; padding-top: 18px; border-top: 1px solid #b9b9b9; }
+.offer-subjects__label { margin: 0 0 14px !important; color: #111; font-family: "Press Start 2P", monospace; font-size: 9px; line-height: 1.6; }
+.offer-subjects ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 20px; padding: 0; margin: 0; list-style: none; color: #555; font-size: 12px; }
+.offer-subjects li::before { content: "◆"; display: inline-block; margin-right: 8px; color: #111; font-size: 8px; }
+.offer-method__quote { margin-top: 34px; padding: 24px 0 24px 20px; border-left: 3px solid #111; color: #111; font-family: "Press Start 2P", monospace; font-size: 12px; line-height: 1.8; }
+.offer-program__audience { color: #cfcfcf !important; font-family: "Press Start 2P", monospace; font-size: 8px !important; line-height: 1.6 !important; }
+.offer-program__meta { position: absolute; left: 18px; right: 18px; bottom: 18px; margin: 0 !important; color: #fff !important; font-family: "Press Start 2P", monospace; font-size: 8px !important; line-height: 1.6 !important; }
+.offer-program__arrow { z-index: 1; background: #111; padding-left: 5px; }
+.offer-chart-card__note { margin: 22px 0 0; color: #888; font-size: 11px; line-height: 1.5; }
+.offer-contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; max-width: 850px; margin: 38px 0 32px; }
+.offer-contact-grid > div { padding-top: 13px; border-top: 1px solid #666; }
+.offer-contact-grid span { display: block; margin-bottom: 12px; color: #888; font-family: "Press Start 2P", monospace; font-size: 8px; }
+.offer-contact-grid a, .offer-contact-grid p { margin: 0; color: #eee; font-size: 13px; line-height: 1.6; text-decoration: none; }
+.offer-contact-grid a:hover { text-decoration: underline; }
+@media (max-width: 760px) {
+  .offer-subjects ul { grid-template-columns: 1fr; }
+  .offer-program { min-height: 290px; }
+  .offer-contact-grid { grid-template-columns: 1fr; gap: 24px; }
+}
+
+/* Logo OMA aggiornato: stesso asset, ridimensionato senza deformazioni o filtri. */
+.offer-nav__logo { width: 38px; height: 38px; aspect-ratio: 680 / 681; padding: 0; background: #fff; border: 2px solid #080808; outline: 1px solid #dedede; box-shadow: 4px 4px 0 rgba(255,255,255,.24); }
+.offer-nav__logo img { display: block; width: 100%; height: 100%; aspect-ratio: 680 / 681; object-fit: contain; image-rendering: pixelated; }
+.offer-hero__stamp img { display: block; width: clamp(150px, 17vw, 245px); height: auto; max-height: 160px; aspect-ratio: 680 / 681; object-fit: contain; image-rendering: pixelated; }
+.offer-hero__stamp span { display: block; }
+@media (max-width: 760px) {
+  .offer-nav__logo { width: 32px; height: 32px; }
+  .offer-nav__logo img { width: 100%; height: 100%; }
+  .offer-hero__stamp img { width: 150px; max-height: 120px; }
+}
+
+/* Mobile-only: il lockup della hero segue il pulsante, mentre desktop resta invariato. */
+@media (max-width: 760px) {
+  .offer-hero { flex-direction: column; align-items: flex-start; justify-content: flex-end; }
+  .offer-hero__stamp { position: static; align-self: center; width: 100%; margin-top: 22px; align-items: center; transform: none; }
+  .offer-hero__stamp img { width: 150px; max-height: 120px; }
+}
+
+/* Hero più compatta sopra il titolo; su mobile il lockup resta sotto il pulsante. */
+.offer-hero { padding-top: 52px; }
+@media (max-width: 760px) {
+  .offer-hero { min-height: 680px; padding-top: 28px; justify-content: flex-start; }
+}
+
+@media (max-width: 760px) {
+  .offer-hero__stamp { margin-top: 42px; }
+}
+
+@media (max-width: 760px) {
+  .offer-hero__stamp { margin-top: 58px; gap: 4px; }
+}
