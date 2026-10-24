@@ -33,9 +33,9 @@ const DOOR_HEIGHT = 72;
 const GRAVITY = 1500;
 const WALK_SPEED = 250;
 const JUMP_SPEED = 700;
-const FIRST_DOOR = { x: 1320, y: 520 - DOOR_HEIGHT };
-const SECOND_DOOR = { x: 1940, y: 500 - DOOR_HEIGHT };
-const THIRD_DOOR = { x: 2770, y: 500 - DOOR_HEIGHT };
+const FIRST_DOOR = { x: 1220, y: 520 - DOOR_HEIGHT };
+const SECOND_DOOR = { x: 1840, y: 500 - DOOR_HEIGHT };
+const THIRD_DOOR = { x: 2670, y: 500 - DOOR_HEIGHT };
 const DESKTOP_OPENING_SCREEN = "/assets/OMASchermatainizialesito_ff44d5c3.svg";
 const MOBILE_OPENING_SCREEN = "/assets/OMASchermatainizialemobile_e0c65842.svg";
 
@@ -158,36 +158,66 @@ export default function GameCanvas() {
       world.addChild(openingScreen);
 
       const credits = new Text({
-        text: "Realizzato da:\nGiulia Rappo, Antonio Russo\ne Giovanni Dario Manzini",
+        text: "Realizzato da:\nGiulia Rappo, Antonio Russo",
         style: new TextStyle({
           fontFamily: "monospace",
           fontSize: 13,
-          fill: 0xa6a6a6,
+          fill: 0x080808, // scuro, perché ora sta su sfondo chiaro
           letterSpacing: 2,
           lineHeight: 21,
           align: "center",
         }),
       });
       credits.anchor.set(0.5, 0.5);
-      credits.label = "opening-credits";
+
+      // Pannello come doorSign: dimensioni calcolate sul testo
+      const creditsPadX = 24;
+      const creditsPadY = 18;
+      const creditsW = credits.width + creditsPadX * 2;
+      const creditsH = credits.height + creditsPadY * 2;
+
+      const creditsSign = new Container({ label: "opening-credits" });
+      const creditsBg = new Graphics({ roundPixels: true });
+      const cx = -creditsW / 2; // il container è centrato sul suo punto di posizione
+      const cy = -creditsH / 2;
+      creditsBg
+        .rect(cx, cy, creditsW, creditsH)
+        .fill({ color: 0xd0d0d0 })
+        .stroke({ color: 0x080808, width: 2, pixelLine: true });
+      [
+        [cx + 6, cy + 6],
+        [cx + creditsW - 11, cy + 6],
+        [cx + 6, cy + creditsH - 11],
+        [cx + creditsW - 11, cy + creditsH - 11],
+      ].forEach(([x, y]) => {
+        creditsBg.rect(x, y, 5, 5).fill({ color: 0x666666 });
+        creditsBg.rect(x + 1, y + 1, 3, 1).fill({ color: 0xd8d8d8 });
+      });
+      credits.position.set(0, 0);
+      creditsSign.addChild(creditsBg, credits);
+
+      const creditsOffsetX = 430; // più alto = più a destra (negativo = più a sinistra)
+      const creditsOffsetY = 320; // più alto = più in basso
 
       if (isPortrait) {
-        // Sotto lo sprite, centrati con lui
-        credits.position.set(
-          openingX + openingScreen.width / 2,
-          openingScreen.position.y + openingScreen.height + 40,
+        // Sotto lo sprite, centrato con lui
+        creditsSign.position.set(
+          openingX + openingScreen.width / 2 + creditsOffsetX,
+          openingScreen.position.y + openingScreen.height + 40 + creditsH / 2 + creditsOffsetY,
         );
+        // Non uscire dallo schermo a destra
+        creditsSign.x = Math.min(creditsSign.x, visibleWorldW - creditsW / 2 - 8);
       } else {
         // Tra lo sprite e il primo buco
         const omaRight = openingScreen.position.x + openingScreen.width;
         const firstHoleStart = platforms[0].x + platforms[0].w;
         const holeCenter = firstHoleStart + (platforms[1].x - firstHoleStart) / 2;
-        credits.position.set(
-          omaRight + (holeCenter - omaRight) / 2,
-          openingScreen.position.y + openingScreen.height / 2,
+        creditsSign.position.set(
+          omaRight + (holeCenter - omaRight) / 2 + creditsOffsetX,
+          openingScreen.position.y + openingScreen.height / 2 + creditsOffsetY,
         );
       }
-      world.addChild(credits);
+      world.addChild(creditsSign);
 
       const doorPromptTexture = await Assets.load(DOOR_PROMPT_ASSET) as Texture;
       const doorDefinitions = [
@@ -261,7 +291,7 @@ export default function GameCanvas() {
         text: "NON HAI TEMPO DI GIOCARE?",
         style: new TextStyle({
           fontFamily: "Press Start 2P, monospace",
-          fontSize: 15,
+          fontSize: 10,
           fill: 0xc4c4c4,
           letterSpacing: 1,
         }),
@@ -273,12 +303,28 @@ export default function GameCanvas() {
         text: "CONTATTACI",
         style: new TextStyle({
           fontFamily: "Press Start 2P, monospace",
-          fontSize: 18,
+          fontSize: 15,
           fill: 0xc4c4c4,
           letterSpacing: 1,
         }),
       });
       offerButtonSubtitle.position.set(54, 39);
+      // Testi responsive: più piccolo lo zoom (mobile), più grandi i font
+      let offerSubSize = 12;
+      const updateOfferTextSize = (zoom: number) => {
+        const sub = Math.round(Math.max(8, Math.min(14, 6.5 / zoom)));
+        if (sub === offerSubSize) return; // evita di ridisegnare il testo a ogni frame
+        offerSubSize = sub;
+        const title = sub + 2;
+
+        offerButtonSubtitle.style.fontSize = sub;
+        offerButtonTitle.style.fontSize = title;
+
+        // Ricentra verticalmente i due testi nel pulsante (altezza fissa 64)
+        const top = (offerButtonHeight - (title + 10 + sub)) / 2;
+        offerButtonTitle.position.set(54, top);
+        offerButtonSubtitle.position.set(54, top + title + 10);
+      };
       offerButton.addChild(offerButtonSubtitle);
       offerButton.position.set(offerButtonX, offerButtonY);
       offerButton.eventMode = "static";
@@ -429,6 +475,7 @@ export default function GameCanvas() {
 
       // Camera iniziale (tiene conto dello zoom)
       const initialZoom = computeZoom();
+      updateOfferTextSize(initialZoom);
       const initialViewW = Math.max(1, app.screen.width || initialWidth) / initialZoom;
       const initialViewH = Math.max(1, app.screen.height || initialHeight) / initialZoom;
       cameraX = Math.max(0, Math.min(Math.max(0, WORLD_WIDTH - initialViewW), playerState.x - initialViewW * 0.35));
@@ -511,14 +558,14 @@ export default function GameCanvas() {
         if (previousBottom <= BASE_Y && currentBottom > BASE_Y && playerState.vy > 0) playGameSound("fall");
         if (playerState.x >= WORLD_WIDTH - 90 && playerState.grounded) {
           sessionStorage.setItem("hub-entry-side", "right");
-          navigate("/game");
+          navigate("/hub");
           return;
         }
-        // if (playerState.x <= 20 && playerState.grounded) {
-        //   sessionStorage.setItem("hub-entry-side", "left");
-        //   navigate("/hub");
-        //   return;
-        // }
+        if (playerState.x <= 20 && playerState.grounded) {
+          sessionStorage.setItem("hub-entry-side", "left");
+          navigate("/hub");
+          return;
+        }
         if (playerState.y > WORLD_HEIGHT + 120) {
           playerState.x = 120;
           playerState.y = 650 - PLAYER_HEIGHT;
@@ -527,6 +574,7 @@ export default function GameCanvas() {
 
         // Camera con zoom
         const zoom = computeZoom();
+        updateOfferTextSize(zoom);
         const screenWidth = Math.max(1, app.screen.width || initialWidth);
         const screenHeight = Math.max(1, app.screen.height || initialHeight);
         const viewW = screenWidth / zoom; // quanto mondo è visibile
