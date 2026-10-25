@@ -21,7 +21,7 @@ const JUMP_SPEED = 700;
 
 // Add future rooms here: the hub will draw a new door and route automatically.
 const INTERMEDIATE_DOORS: HubDoor[] = [
-  { x: 300, label: "Cura anomala", route: "/room-01", returnToHub: true },
+  { x: 300, label: "Cura anomala", route: "/room-03", returnToHub: true },
 ];
 
 function drawSurface(g: Graphics) {
@@ -188,7 +188,7 @@ export default function IntermediateRoomCanvas() {
         playerState.y += playerState.vy * dt;
         if (playerState.y >= BASE_Y - PLAYER_HEIGHT) { playerState.y = BASE_Y - PLAYER_HEIGHT; playerState.vy = 0; playerState.grounded = true; } else playerState.grounded = false;
         if (playerState.x >= WORLD_WIDTH - 40 && playerState.grounded) {
-          sessionStorage.setItem("home-return-side", "left");
+          sessionStorage.setItem("return-from-cura-anomala", "1");
           navigate("/");
           return;
         }

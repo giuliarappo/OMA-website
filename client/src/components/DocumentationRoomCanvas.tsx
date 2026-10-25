@@ -495,9 +495,6 @@ export default function DocumentationRoomCanvas() {
 
       const hud = new Container({ label: "hud" });
       const hudStyle = new TextStyle({ fontFamily: "monospace", fontSize: 13, fill: 0xf2f2f2, letterSpacing: 2 });
-      const hudTitle = new Text({ text: "SECTOR 03  /  DOCUMENTATION", style: hudStyle });
-      hudTitle.position.set(18, 18);
-      hud.addChild(hudTitle);
       const hint = new Text({ text: "← → MOVE     SPACE JUMP", style: new TextStyle({ ...hudStyle, fontSize: 11, fill: 0xa6a6a6, letterSpacing: 1 }) });
       hint.position.set(18, 42);
       hud.addChild(hint);

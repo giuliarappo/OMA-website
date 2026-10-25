@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+
 
 const programs = [
   {
@@ -38,13 +39,23 @@ const subjects = [
 ];
 
 export default function OffertaFormativa() {
+
+  const [, navigate] = useLocation();
+  
   const backdropStyle = {
     "--offer-bg": "url('/assets/offer-bg_5d3274ec.jpg')",
     "--offer-bg-mobile": "url('/assets/offer-bg-mobile_7c21efa4.jpg')",
   } as CSSProperties;
 
+  const handleSideClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (event.target !== event.currentTarget) return;           // click su un elemento interno
+    if (event.clientX >= event.currentTarget.clientWidth) return; // click sulla scrollbar
+    if (window.innerWidth <= 760) return;                        // su mobile le bande sono troppo strette
+    navigate("/game");
+  };
+
   return (
-    <main className="offer-page">
+    <main className="offer-page" onClick={handleSideClick}>
       <div className="offer-page__backdrop" style={backdropStyle} aria-hidden="true" />
       <header className="offer-nav">
         <Link href="/" className="offer-nav__logo" aria-label="Torna a Monochrome Platform"><img src="/assets/LogoOMA_0fd0a3ac.jpg" alt="Logo OMA" /></Link>
@@ -57,86 +68,36 @@ export default function OffertaFormativa() {
         <Link href="/game" className="offer-nav__game">TORNA AL GIOCO <span>↗</span></Link>
       </header>
 
-      <section className="offer-hero" id="chi-siamo">
+     <section className="offer-hero" id="chi-siamo">
         <div className="offer-hero__copy">
-          <p className="offer-kicker">OPIFICIO / 001 / FORMAZIONE</p>
           <h1>OPIFICIO<br />DI MUSICA<br />APPLICATA</h1>
-          <p className="offer-hero__intro">Un luogo per imparare facendo, ascoltare insieme e trasformare la curiosità in pratica.</p>
-          <a className="offer-cta" href="#offerta-formativa">ESPLORA L’OFFERTA <span>↓</span></a>
+          <p className="offer-hero__intro">Siamo un collettivo multisciplinare che crea opere interattive, con il suono come punto di incontro tra diverse forme di espressione</p>
+
         </div>
-        <div className="offer-hero__stamp"><img src="/assets/LogoOMA_0fd0a3ac.jpg" alt="Logo OMA" /><span>EST. 2025</span></div>
+        <div className="offer-hero__stamp"><img src="/assets/LogoOMA_0fd0a3ac.jpg" alt="Logo OMA" /></div>
       </section>
 
       <div className="offer-content">
-        <section className="offer-section offer-section--intro" id="offerta-formativa">
-          <div className="offer-section__heading">
-            <span className="offer-index">01</span>
-            <h2>FORMARE<br /><em>IL SUONO</em></h2>
-          </div>
-          <div className="offer-section__body">
-            <p className="offer-lead">L’OMA è un laboratorio aperto dove musica, immagini e tecnologia si incontrano.</p>
-            <p>Puoi scegliere di studiare con noi seguendo lezioni individuali, partecipando ai nostri laboratori di gruppo oppure entrando a far parte del nostro collettivo.</p>
-            <p>L’Opificio fa parte dell’offerta formativa di Serious Game Film Academy e accoglie le sue lezioni negli spazi di Fondazione The Square a Firenze.</p>
-            <div className="offer-subjects">
-              <p className="offer-subjects__label">COSTRUISCI IL TUO PERCORSO INDIVIDUALE</p>
-              <ul>{subjects.map((subject) => <li key={subject}>{subject}</li>)}</ul>
-            </div>
-          </div>
-        </section>
+        
 
-        <section className="offer-section" id="metodo">
-          <div className="offer-section__heading">
-            <span className="offer-index">02</span>
-            <h2>ARTIGIANI<br /><em>DEL FARE</em></h2>
-          </div>
-          <div className="offer-section__body offer-method">
-            <p className="offer-lead">Impariamo facendo, con le orecchie, le mani e lo sguardo.</p>
-            <p>La fase digitale è una fondamentale implementazione del lavoro, ma la vera ossatura del risultato nasce dall’esplorazione dei materiali, dal corretto utilizzo degli strumenti e dal dialogo tra persone, immagini e idee.</p>
-            <div className="offer-method__quote">“La tecnica diventa viva quando incontra la curiosità.”</div>
-          </div>
-        </section>
+        
 
-        <section className="offer-section offer-section--programs">
-          <div className="offer-section__heading">
-            <span className="offer-index">03</span>
-            <h2>PERCORSI<br /><em>APPLICATI</em></h2>
-          </div>
-          <div className="offer-programs">
-            {programs.map((program, index) => (
-              <article className="offer-program" key={program.title}>
-                <span className="offer-program__number">0{index + 1}</span>
-                <h3>{program.title}</h3>
-                <p className="offer-program__audience">{program.audience}</p>
-                <p>{program.text}</p>
-                <p className="offer-program__meta">{program.meta}</p>
-                <a className="offer-program__arrow" href={program.href} target="_blank" rel="noreferrer" aria-label={`Scopri ${program.title}`}>↗</a>
-              </article>
-            ))}
-          </div>
-        </section>
+        
 
-        <section className="offer-section offer-section--data">
-          <div className="offer-section__heading">
-            <span className="offer-index">04</span>
-            <h2>UNA MAPPA<br /><em>IN MOVIMENTO</em></h2>
-          </div>
-          <div className="offer-data-grid">
-            <div className="offer-image-placeholder offer-image-placeholder--wide"><span>STUDIO / MATERIALI / ASCOLTO</span></div>
-            <div className="offer-chart-card">
-              <p className="offer-chart-card__label">MAPPA VISIVA DELLE ESPERIENZE</p>
-              <div className="offer-pie" aria-label="Schema visivo delle esperienze: studio, laboratorio e collettivo"><span /></div>
-              <ul className="offer-legend">
-                <li><i className="legend-a" /> STUDIO <b>45%</b></li>
-                <li><i className="legend-b" /> LABORATORIO <b>25%</b></li>
-                <li><i className="legend-c" /> COLLETTIVO <b>30%</b></li>
-              </ul>
-              <p className="offer-chart-card__note">Una visualizzazione del modo in cui teoria, pratica e comunità si incontrano nei percorsi.</p>
-            </div>
-            <div className="offer-image-placeholder"><span>FOLEY / 001</span></div>
-            <div className="offer-image-placeholder"><span>SET / 002</span></div>
-          </div>
-        </section>
+        
+        
 
+        <section className="offer-section offer-section--contact" id="contatti">
+          <p className="offer-kicker">06 / CONTATTI</p>
+          <a className="offer-cta offer-cta--dark" href="#offerta-formativa">Vuoi dare un'occhiata ai nostri corsi prima di scriverci?<span>↗</span></a>
+          <h3 className="offer-contact-copy">I nostri contatti:</h3>
+          <div className="offer-contact-grid">
+            <div><span>WHATSAPP</span><a href="tel:+393494640511">+39 349 464 0511</a></div>
+            <div><span>EMAIL</span><a href="mailto:segreteria@opificiodimusicapplicata.com">segreteria@opificiodimusicapplicata.com</a></div>
+            <div><span>INDIRIZZO</span><p>Fondazione The Square<br />Via Domenico Cirillo, 1/a<br />50132 — Firenze (FI)</p></div>
+          </div>
+          <a className="offer-cta offer-cta--dark" href="mailto:segreteria@opificiodimusicapplicata.com">Richiedi informazioni<span>↗</span></a>
+        </section>
         <section className="offer-section offer-section--community">
           <div className="offer-section__heading">
             <span className="offer-index">05</span>
@@ -148,17 +109,21 @@ export default function OffertaFormativa() {
           </div>
         </section>
 
-        <section className="offer-section offer-section--contact" id="contatti">
-          <p className="offer-kicker">06 / CONTATTI</p>
-          <h2>PORTA LA TUA<br /><em>IDEA.</em></h2>
-          <p className="offer-contact-copy">Per informazioni e iscrizioni scrivi alla segreteria o passa a trovarci alla Fondazione The Square.</p>
-          <div className="offer-contact-grid">
-            <div><span>WHATSAPP</span><a href="tel:+393494640511">+39 349 464 0511</a></div>
-            <div><span>EMAIL</span><a href="mailto:segreteria@opificiodimusicapplicata.com">segreteria@opificiodimusicapplicata.com</a></div>
-            <div><span>INDIRIZZO</span><p>Fondazione The Square<br />Via Domenico Cirillo, 1/a<br />50132 — Firenze (FI)</p></div>
+        <section className="offer-section offer-section--intro" id="offerta-formativa">
+          <div className="offer-section__heading">
+            <span className="offer-index">01</span>
+            <h2>I NOSTRI<br /><em>CORSI</em></h2>
           </div>
-          <a className="offer-cta offer-cta--dark" href="mailto:segreteria@opificiodimusicapplicata.com">RICHIEDI INFORMAZIONI <span>↗</span></a>
+          <div className="offer-section__body">
+      
+            
+            
+            <div className="offer-subjects">
+              <p className="offer-subjects__label">COSTRUISCI IL TUO PERCORSO INDIVIDUALE</p>
+            </div>
+          </div>
         </section>
+
       </div>
       <footer className="offer-footer"><span>OMA / OPIFICIO DI MUSICA APPLICATA</span><span>MONOCHROME PLATFORM / 2026</span></footer>
     </main>
