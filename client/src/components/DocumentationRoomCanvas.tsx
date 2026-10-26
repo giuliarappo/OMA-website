@@ -493,13 +493,6 @@ export default function DocumentationRoomCanvas() {
       // Le colonne vengono dopo il personaggio, quindi lo coprono quando le attraversa.
       addColumns(world);
 
-      const hud = new Container({ label: "hud" });
-      const hudStyle = new TextStyle({ fontFamily: "monospace", fontSize: 13, fill: 0xf2f2f2, letterSpacing: 2 });
-      const hint = new Text({ text: "← → MOVE     SPACE JUMP", style: new TextStyle({ ...hudStyle, fontSize: 11, fill: 0xa6a6a6, letterSpacing: 1 }) });
-      hint.position.set(18, 42);
-      hud.addChild(hint);
-      app.stage.addChild(hud);
-
       const homeButton = addFixedHomeButton(app, navigate, loaded[HOME_BUTTON_OFF_ASSET], loaded[HOME_BUTTON_ON_ASSET]);
 
       const playerState = { x: ROOM_SPAWN_X, y: PLAYER_FLOOR_Y - PLAYER_HEIGHT, vx: 0, vy: 0, grounded: true, jumpLock: false };

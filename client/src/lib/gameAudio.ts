@@ -7,6 +7,10 @@ const SOUND_URLS = {
     primary: "/assets/urlocaduta_eco_9f9f912a.mp3",
     fallback: "/assets/urlocaduta_bb3a42eb.mp3",
   },
+  test: {
+    primary: "client/public/assets/test-musica.mp3",
+    fallback: "client/public/assets/test-musica.mp3"
+  }
 } as const;
 
 type SoundName = keyof typeof SOUND_URLS;

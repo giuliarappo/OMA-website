@@ -119,7 +119,7 @@ export default function GameCanvas() {
       host.appendChild(app.canvas);
       app.canvas.className = "game-canvas";
       app.canvas.setAttribute("aria-label", "Monochrome Platform, gioco platform 2D");
-
+      
       const resizeObserver = new ResizeObserver(() => {
         const rect = host.getBoundingClientRect();
         if (rect.width > 0 && rect.height > 0) {
@@ -135,10 +135,17 @@ export default function GameCanvas() {
 
       const world = makeWorld();
       app.stage.addChild(world);
+      
+      const MOBILE_BOOST = 1.5; // 1 = com'era, 1.3 = +30%, 1.5 = +50%
 
-      // Zoom del mondo in base allo schermo (si ricalcola a ogni frame, quindi segue resize e rotazione)
-      const computeZoom = () =>
-        Math.max(0.45, Math.min(1.5, Math.min(app.screen.height / 560, app.screen.width / 640)));
+      const computeZoom = () => {
+        const w = app.screen.width;
+        const h = app.screen.height;
+        const base = Math.min(h / 560, w / 640);
+        const isPhone = Math.min(w, h) <= 600; // vale sia in verticale sia in orizzontale
+        const boosted = base * (isPhone ? MOBILE_BOOST : 1);
+        return Math.max(0.45, Math.min(2, boosted)); // massimo alzato da 1.5 a 2
+      };      
 
       const isMobileViewport = app.screen.width <= 700;
       const openingScreenTexture = await Assets.load(
@@ -567,7 +574,7 @@ export default function GameCanvas() {
         }
         if (!input.jump) playerState.jumpLock = false;
         playerState.vy += GRAVITY * dt;
-
+        playGameSound("test");
         const previousBottom = playerState.y + PLAYER_HEIGHT;
         playerState.x += playerState.vx * dt;
         playerState.x = Math.max(0, Math.min(WORLD_WIDTH - PLAYER_WIDTH, playerState.x));
