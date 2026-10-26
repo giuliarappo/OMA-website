@@ -163,7 +163,7 @@ export default function GameCanvas() {
 
       const openingGap = isPortrait ? 160 : 40; // distanza dalla piattaforma: più alto = più in alto
       const openingX = isPortrait ? (visibleWorldW - openingScreen.width) / 2 : 120; // centrato su portrait
-      openingScreen.position.set(openingX, platforms[0].y - openingScreen.height - openingGap);
+      openingScreen.position.set(200, platforms[0].y - openingScreen.height - openingGap);
       world.addChild(openingScreen);
 
       const credits = new Text({
@@ -387,6 +387,8 @@ export default function GameCanvas() {
       });
       offerButton.on("pointertap", () => navigate("/offerta-formativa"));
       world.addChild(offerButton);
+      world.addChildAt(offerButton, world.getChildIndex(player));
+
 
       const doorSign = new Graphics({ label: "cura-anomala-sign", roundPixels: true });
       const signW = 200;
@@ -486,12 +488,12 @@ export default function GameCanvas() {
       hud.addChild(location);
       app.stage.addChild(hud);
 
-      const returningFromRoom = sessionStorage.getItem("return-from-cura-anomala") === "1";
+      const returningFromRoom = sessionStorage.getItem("return-to-intermediate") === "1";
       const returningFromPortraitRoom = sessionStorage.getItem("return-from-portrait-room") === "1";
       const returningFromDocumentation = sessionStorage.getItem("return-from-documentation") === "1";
       const returningFromDocumentationRightHole = sessionStorage.getItem("return-from-documentation-right-hole") === "1";
       const homeReturnSide = sessionStorage.getItem("home-return-side");
-      sessionStorage.removeItem("return-from-cura-anomala");
+      sessionStorage.removeItem("return-to-intermediate");
       sessionStorage.removeItem("return-from-portrait-room");
       sessionStorage.removeItem("return-from-documentation");
       sessionStorage.removeItem("return-from-documentation-right-hole");
@@ -574,7 +576,6 @@ export default function GameCanvas() {
         }
         if (!input.jump) playerState.jumpLock = false;
         playerState.vy += GRAVITY * dt;
-        playGameSound("test");
         const previousBottom = playerState.y + PLAYER_HEIGHT;
         playerState.x += playerState.vx * dt;
         playerState.x = Math.max(0, Math.min(WORLD_WIDTH - PLAYER_WIDTH, playerState.x));

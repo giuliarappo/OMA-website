@@ -6,15 +6,52 @@ const SOUND_URLS = {
   fall: {
     primary: "/assets/urlocaduta_eco_9f9f912a.mp3",
     fallback: "/assets/urlocaduta_bb3a42eb.mp3",
-  },
-  test: {
-    primary: "client/public/assets/test-musica.mp3",
-    fallback: "client/public/assets/test-musica.mp3"
   }
 } as const;
 
 type SoundName = keyof typeof SOUND_URLS;
 const audioCache = new Map<SoundName, HTMLAudioElement>();
+
+let backgroundMusic: HTMLAudioElement | null = null;
+let backgroundMusicStarted = false;
+
+export function startBackgroundMusic() {
+  if (typeof window === "undefined") return;
+
+  if (!backgroundMusic) {
+    backgroundMusic = new Audio("/assets/audio_bg.mp3");
+    backgroundMusic.loop = true;
+    backgroundMusic.preload = "auto";
+    backgroundMusic.volume = 0.28;
+  }
+
+  if (backgroundMusicStarted && !backgroundMusic.paused) {
+    return;
+  }
+
+  backgroundMusicStarted = true;
+
+  void backgroundMusic.play().catch(() => {
+    // Il browser può bloccare l'audio finché l'utente
+    // non compie un gesto, come un click o un tap.
+    backgroundMusicStarted = false;
+  });
+}
+
+export function stopBackgroundMusic() {
+  if (!backgroundMusic) return;
+
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
+  backgroundMusicStarted = false;
+}
+
+export function setBackgroundMusicVolume(volume: number) {
+  if (!backgroundMusic) return;
+
+  backgroundMusic.volume = Math.max(0, Math.min(1, volume));
+}
+
 
 function getAudio(name: SoundName) {
   let audio = audioCache.get(name);

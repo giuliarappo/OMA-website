@@ -102,12 +102,6 @@ export default function IntermediateRoomCanvas() {
       world.addChild(doorPrompt);
       const doorGlow = createDoorGlow(INTERMEDIATE_DOORS[0].x, BASE_Y - DOOR_HEIGHT, DOOR_WIDTH, DOOR_HEIGHT);
       world.addChild(doorGlow);
-      const curaImage = new Sprite(await Assets.load("/assets/pixelframe_342eed84.jpeg"));
-      curaImage.anchor.set(0.5, 1);
-      curaImage.scale.set(190 / curaImage.texture.width);
-      curaImage.position.set(DOOR_WIDTH / 2 + 300, BASE_Y - DOOR_HEIGHT - 16);
-      curaImage.visible = false;
-      world.addChild(curaImage);
       const player = new Graphics({ label: "hub-player", roundPixels: true });
       const drawPlayer = (phase: number, facing: 1 | -1) => {
         const swing = Math.round(Math.sin(phase) * 4);
@@ -171,7 +165,6 @@ export default function IntermediateRoomCanvas() {
         for (const door of INTERMEDIATE_DOORS) if (Math.abs(playerState.x + PLAYER_WIDTH / 2 - (door.x + DOOR_WIDTH / 2)) < 72 && Math.abs(playerState.y - (BASE_Y - PLAYER_HEIGHT)) < 80) { activeDoor = door; break; }
         setDoorPromptVisible(doorPrompt, Boolean(activeDoor), elapsed);
         setDoorGlowVisible(doorGlow, Boolean(activeDoor), elapsed);
-        curaImage.visible = Boolean(activeDoor);
         if (input.jump && activeDoor && playerState.grounded && !playerState.jumpLock) {
           if (activeDoor.returnToHub) {
             sessionStorage.setItem("return-to-intermediate", "1");
@@ -188,12 +181,12 @@ export default function IntermediateRoomCanvas() {
         playerState.y += playerState.vy * dt;
         if (playerState.y >= BASE_Y - PLAYER_HEIGHT) { playerState.y = BASE_Y - PLAYER_HEIGHT; playerState.vy = 0; playerState.grounded = true; } else playerState.grounded = false;
         if (playerState.x >= WORLD_WIDTH - 40 && playerState.grounded) {
-          sessionStorage.setItem("return-from-cura-anomala", "1");
+          sessionStorage.setItem("return-to-intermediate", "1");
           navigate("/");
           return;
         }
         if (playerState.x <= 20 && playerState.grounded) {
-          sessionStorage.setItem("home-return-side", "right");
+          sessionStorage.setItem("return-to-intermediate", "1");
           navigate("/");
           return;
         }

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { preloadGameSounds } from "./lib/gameAudio";
+import { preloadGameSounds, startBackgroundMusic } from "./lib/gameAudio";
 import Home from "./pages/Home";
 import Hub from "./pages/Hub";
 import Room01 from "./pages/Room01";
@@ -29,7 +29,23 @@ function Router() {
 
 export default function App() {
   useEffect(() => {
-    preloadGameSounds();
+    const startMusicOnce = () => {
+      startBackgroundMusic();
+
+      window.removeEventListener("pointerdown", startMusicOnce);
+      window.removeEventListener("keydown", startMusicOnce);
+      window.removeEventListener("touchstart", startMusicOnce);
+    };
+
+    window.addEventListener("pointerdown", startMusicOnce);
+    window.addEventListener("keydown", startMusicOnce);
+    window.addEventListener("touchstart", startMusicOnce);
+
+    return () => {
+      window.removeEventListener("pointerdown", startMusicOnce);
+      window.removeEventListener("keydown", startMusicOnce);
+      window.removeEventListener("touchstart", startMusicOnce);
+    };
   }, []);
 
   return (
@@ -38,3 +54,4 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+

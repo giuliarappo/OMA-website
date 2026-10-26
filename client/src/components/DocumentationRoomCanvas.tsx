@@ -101,7 +101,7 @@ function drawDocumentationHole(g: Graphics) {
 }
 function addEntranceText(world: Container, viewportWidth: number) {
   const isMobile = viewportWidth <= 700;
-  const boxWidth = isMobile ? Math.max(280, viewportWidth - 36) : ENTRANCE_TEXT_WIDTH;
+  const boxWidth = isMobile ? 300 : ENTRANCE_TEXT_WIDTH;
   const boxHeight = isMobile ? 390 : ENTRANCE_TEXT_HEIGHT;
   const boxX = isMobile ? 0 : 54;
   const boxY = isMobile ? 0 : 156;
@@ -525,7 +525,7 @@ export default function DocumentationRoomCanvas() {
         setDoorPromptVisible(doorPrompt, nearReturnDoor, elapsed);
         if (input.jump && nearReturnDoor && playerState.grounded && !playerState.jumpLock) {
           sessionStorage.setItem("return-from-documentation", "1");
-          navigate("/game");
+          navigate("/stanza-intermedia");
           return;
         }
         if (input.jump && playerState.grounded && !playerState.jumpLock) {
@@ -572,7 +572,7 @@ export default function DocumentationRoomCanvas() {
           && playerState.x < DOCUMENTATION_HOLE.x + DOCUMENTATION_HOLE.w;
         if (insideDocumentationHole && previousBottom <= PLAYER_FLOOR_Y && currentBottom > PLAYER_FLOOR_Y && playerState.vy > 0) {
           sessionStorage.setItem("return-from-documentation-right-hole", "1");
-          navigate("/game");
+          navigate("/stanza-intermedia");
           return;
         }
         if (playerState.y > WORLD_HEIGHT + 120) {
