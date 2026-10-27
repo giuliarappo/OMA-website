@@ -10,6 +10,7 @@ import {
   TextStyle,
   Ticker,
   Texture,
+  isMobile,
 } from "pixi.js";
 import { useLocation } from "wouter";
 import { playGameSound } from "@/lib/gameAudio";
@@ -159,13 +160,83 @@ export default function GameCanvas() {
 
       // Su portrait lo sprite non deve superare la larghezza visibile
       const spriteW = Math.min(420, visibleWorldW * 0.9);
-      openingScreen.scale.set(spriteW / openingScreenTexture.width);
+      openingScreen.scale.set(isMobile ? 0.7 : 1);
 
       const openingGap = isPortrait ? 160 : 40; // distanza dalla piattaforma: più alto = più in alto
-      const openingX = isPortrait ? (visibleWorldW - openingScreen.width) / 2 : 120; // centrato su portrait
-      openingScreen.position.set(200, platforms[0].y - openingScreen.height - openingGap);
+      const openingX = isPortrait ? 5 : 300; // centrato su portrait
+      openingScreen.position.set(openingX + 100, platforms[0].y - openingScreen.height - openingGap);
       world.addChild(openingScreen);
 
+      // PULSANTE PER CHI NON HA TEMPO DI GIOCARE
+      const offerButton = new Container({ label: "offer-formativa-button" });
+      const offerButtonWidth = 520;
+      const offerButtonHeight = 64;
+      const offerButtonX = openingX;
+      const offerButtonY = 516;
+      const offerButtonBackground = new Graphics({ roundPixels: true });
+      const drawOfferButtonBackground = (hovered: boolean) => {
+        offerButtonBackground.clear();
+        offerButtonBackground
+          .rect(0, 0, offerButtonWidth, offerButtonHeight)
+          .fill({ color: hovered ? 0x101010 : 0xdedede, alpha: hovered ? 1 : 0.95 })
+          .stroke({ color: hovered ? 0x555555 : 0xffffff, width: 2, pixelLine: true });
+      };
+      drawOfferButtonBackground(false);
+      offerButton.addChild(offerButtonBackground);
+
+      const offerButtonCursor = new Text({
+        text: "◆",
+        style: new TextStyle({
+          fontFamily: "monospace",
+          fontSize: 10,
+          fill: 0xaaaaaa,
+        }),
+      });
+      offerButtonCursor.anchor.set(0.5);
+      offerButtonCursor.position.set(24, offerButtonHeight / 2);
+      offerButton.addChild(offerButtonCursor);
+
+      const offerButtonTitle = new Text({
+        text: "NON HAI TEMPO DI GIOCARE CON NOI?",
+        style: new TextStyle({
+          fontFamily: "Press Start 2P, monospace",
+          fontSize: 10,
+          fill: 0x555555,
+          letterSpacing: 1,
+        }),
+      });
+      offerButtonTitle.anchor.set(0.5, 0); // origine al centro orizzontale
+      offerButtonTitle.position.set(offerButtonWidth / 2, 17);
+      offerButton.addChild(offerButtonTitle);
+
+      const offerButtonSubtitle = new Text({
+        text: "CONTATTACI",
+        style: new TextStyle({
+          fontFamily: "Press Start 2P, monospace",
+          fontSize: 18,
+          fill: 0x555555,
+          letterSpacing: 1,
+        }),
+      });
+      offerButtonSubtitle.anchor.set(0.5, 0); // origine al centro orizzontale
+      offerButtonSubtitle.position.set(offerButtonWidth / 2, 39);
+      offerButton.addChild(offerButtonSubtitle);
+
+      const hint = new Text({
+      text: "\u2190 \u279E MUOVITI \u2191 SALTARE",
+      style: new TextStyle({
+        fontFamily: "Press Start 2P, monospace",
+        fontSize: 18,
+        fill: 0x555555,
+        letterSpacing: 1,
+      }),
+      });
+    hint.anchor.set(0.5, 0); // origine al centro orizzontale
+    hint.position.set(
+      offerButtonX + offerButtonWidth / 2,         // stessa X del centro del pulsante
+      offerButtonY + offerButtonHeight + 12,       // 12 px sotto il pulsante
+    );
+    // world.addChild(hint);
       const credits = new Text({
         text: "Realizzato da:\nGiulia Rappo, Antonio Russo",
         style: new TextStyle({
@@ -205,17 +276,15 @@ export default function GameCanvas() {
       credits.position.set(0, 0);
       creditsSign.addChild(creditsBg, credits);
 
-      const creditsOffsetX = 430; // più alto = più a destra (negativo = più a sinistra)
-      const creditsOffsetY = 320; // più alto = più in basso
+      const creditsOffsetX = platforms[10].x; // più alto = più a destra (negativo = più a sinistra)
+      const creditsOffsetY = 120; // più alto = più in basso
 
       if (isPortrait) {
         // Sotto lo sprite, centrato con lui
         creditsSign.position.set(
-          openingX + openingScreen.width / 2 + creditsOffsetX,
+          creditsOffsetX,
           openingScreen.position.y + openingScreen.height + 40 + creditsH / 2 + creditsOffsetY,
         );
-        // Non uscire dallo schermo a destra
-        creditsSign.x = Math.min(creditsSign.x, visibleWorldW - creditsW / 2 - 8);
       } else {
         // Tra lo sprite e il primo buco
         const omaRight = openingScreen.position.x + openingScreen.width;
@@ -267,78 +336,11 @@ export default function GameCanvas() {
       };
       drawPlayer(0, 1);
       world.addChild(player);
+      world.addChildAt(hint, world.getChildIndex(player));
 
-      const offerButton = new Container({ label: "offer-formativa-button" });
-      const offerButtonWidth = 520;
-      const offerButtonHeight = 64;
-      const offerButtonX = (platforms[0].w - offerButtonWidth) / 2;
-      const offerButtonY = 516;
-      const offerButtonBackground = new Graphics({ roundPixels: true });
-      const drawOfferButtonBackground = (hovered: boolean) => {
-        offerButtonBackground.clear();
-        offerButtonBackground
-          .rect(0, 0, offerButtonWidth, offerButtonHeight)
-          .fill({ color: hovered ? 0x101010 : 0xdedede, alpha: hovered ? 1 : 0.95 })
-          .stroke({ color: hovered ? 0x555555 : 0xffffff, width: 2, pixelLine: true });
-      };
-      drawOfferButtonBackground(false);
-      offerButton.addChild(offerButtonBackground);
 
-      const offerButtonCursor = new Text({
-        text: "◆",
-        style: new TextStyle({
-          fontFamily: "monospace",
-          fontSize: 10,
-          fill: 0xaaaaaa,
-        }),
-      });
-      offerButtonCursor.anchor.set(0.5);
-      offerButtonCursor.position.set(24, offerButtonHeight / 2);
-      offerButton.addChild(offerButtonCursor);
-
-      const offerButtonTitle = new Text({
-        text: "NON HAI TEMPO DI GIOCARE CON NOI ADESSO?",
-        style: new TextStyle({
-          fontFamily: "Press Start 2P, monospace",
-          fontSize: 10,
-          fill: 0x555555,
-          letterSpacing: 1,
-        }),
-      });
-      offerButtonTitle.anchor.set(0.5, 0); // origine al centro orizzontale
-      offerButtonTitle.position.set(offerButtonWidth / 2, 17);
-      offerButton.addChild(offerButtonTitle);
-
-      const offerButtonSubtitle = new Text({
-        text: "CONTATTACI",
-        style: new TextStyle({
-          fontFamily: "Press Start 2P, monospace",
-          fontSize: 18,
-          fill: 0x555555,
-          letterSpacing: 1,
-        }),
-      });
-      offerButtonSubtitle.anchor.set(0.5, 0); // origine al centro orizzontale
-      offerButtonSubtitle.position.set(offerButtonWidth / 2, 39);
-      offerButton.addChild(offerButtonSubtitle);
-
-      const hint = new Text({
-      text: "\u2190 \u279E MUOVITI \u2191 SALTARE",
-      style: new TextStyle({
-        fontFamily: "Press Start 2P, monospace",
-        fontSize: 18,
-        fill: 0x555555,
-        letterSpacing: 1,
-      }),
-      });
-    hint.anchor.set(0.5, 0); // origine al centro orizzontale
-    hint.position.set(
-      offerButtonX + offerButtonWidth / 2,         // stessa X del centro del pulsante
-      offerButtonY + offerButtonHeight + 12,       // 12 px sotto il pulsante
-    );
-    world.addChild(hint);
+      
     // Dietro al personaggio, così non gli passa sopra
-    world.addChildAt(hint, world.getChildIndex(player));
 
       // Testi responsive e centrati: sottotitolo 16-18, titolo che si adatta alla larghezza
       let offerLayoutKey = "";
@@ -499,7 +501,7 @@ export default function GameCanvas() {
       sessionStorage.removeItem("return-from-documentation-right-hole");
       sessionStorage.removeItem("home-return-side");
       const playerState = {
-        x: returningFromRoom ? FIRST_DOOR.x + 60 : returningFromPortraitRoom ? SECOND_DOOR.x + 60 : returningFromDocumentationRightHole ? THIRD_DOOR.x + DOOR_WIDTH + 18 : returningFromDocumentation ? THIRD_DOOR.x + 60 : homeReturnSide === "left" ? 120 : homeReturnSide === "right" ? WORLD_WIDTH - PLAYER_WIDTH - 120 : 120,
+        x: returningFromRoom ? FIRST_DOOR.x + 60 : returningFromPortraitRoom ? SECOND_DOOR.x + 60 : returningFromDocumentationRightHole ? THIRD_DOOR.x + DOOR_WIDTH + 18 : returningFromDocumentation ? THIRD_DOOR.x + 60 : homeReturnSide === "left" ? 120 : homeReturnSide === "right" ? WORLD_WIDTH - PLAYER_WIDTH - 120 : 180,
         y: returningFromRoom ? FIRST_DOOR.y + DOOR_HEIGHT - PLAYER_HEIGHT : returningFromPortraitRoom ? SECOND_DOOR.y + DOOR_HEIGHT - PLAYER_HEIGHT : returningFromDocumentationRightHole ? THIRD_DOOR.y + DOOR_HEIGHT - PLAYER_HEIGHT : returningFromDocumentation ? THIRD_DOOR.y + DOOR_HEIGHT - PLAYER_HEIGHT : 650 - PLAYER_HEIGHT,
         vx: 0,
         vy: 0,
@@ -594,14 +596,15 @@ export default function GameCanvas() {
         const currentBottom = playerState.y + PLAYER_HEIGHT;
         if (previousBottom <= BASE_Y && currentBottom > BASE_Y && playerState.vy > 0) playGameSound("fall");
         if (playerState.x >= WORLD_WIDTH - 90) {
+          // sessionStorage.setItem("home-return-side", "left")
           navigate("/game")
           return;
         }
-        // if (playerState.x <= 20 && playerState.grounded) {
-        //   sessionStorage.setItem("hub-entry-side", "left");
-        //   navigate("/hub");
-        //   return;
-        // }
+        if (playerState.x <= 20 && playerState.grounded) {
+          // sessionStorage.setItem("home-return-side", "right")
+          navigate("/game");
+          return;
+        }
         if (playerState.y > WORLD_HEIGHT + 120) {
           playerState.x = 120;
           playerState.y = 650 - PLAYER_HEIGHT;
