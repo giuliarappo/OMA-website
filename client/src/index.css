@@ -154,7 +154,8 @@ button { font: inherit; }
 .offer-footer { display: flex; justify-content: space-between; gap: 20px; padding: 25px 0 40px; color: #bdbdbd; font-size: 9px; letter-spacing: 1px; }
 @media (max-width: 760px) {
   .offer-nav { width: calc(100% - 24px); gap: 12px; padding: 12px 0; }.offer-nav__links { gap: 10px; }.offer-nav__links a:nth-child(n+3) { display: none; }.offer-nav__links a, .offer-nav__game { font-size: 7px; }.offer-nav__game { padding-left: 10px; }.offer-nav__logo { width: 46px; height: 32px; }.offer-hero__stamp img { width: 94px; }
-  .offer-hero, .offer-content, .offer-footer { width: calc(100% - 24px); }.offer-hero { min-height: 680px; padding: 65px 22px 55px; align-items: flex-end; }.offer-hero__stamp { position: absolute; top: 60px; right: 24px; font-size: 22px; }.offer-hero h1 { font-size: clamp(25px, 9vw, 40px); }.offer-hero__intro { font-size: 14px; }.offer-section { grid-template-columns: 1fr; gap: 35px; padding: 68px 22px; }.offer-programs { grid-template-columns: 1fr; }.offer-program { min-height: 210px; }.offer-section--data .offer-section__heading { display: block; }.offer-section--data .offer-section__heading .offer-index { margin-bottom: 24px; }.offer-data-grid { grid-template-columns: 1fr; }.offer-image-placeholder--wide { grid-row: auto; min-height: 260px; }.offer-chart-card { min-height: 330px; }.offer-footer { display: block; padding: 22px 0 34px; line-height: 2; }.offer-page__backdrop { background-image: var(--offer-bg-mobile); background-position: center top; }
+  .offer-hero, .offer-content, .offer-footer { width: calc(100% - 24px); }.offer-hero { min-height: 680px; padding: 65px 22px 55px; align-items: flex-end; }.offer-hero h1 { font-size: clamp(25px, 9vw, 40px); }.offer-hero__intro { font-size: 14px; }.offer-section { grid-template-columns: 1fr; gap: 35px; padding: 68px 22px; }.offer-programs { grid-template-columns: 1fr; }.offer-program { min-height: 210px; }.offer-section--data .offer-section__heading { display: block; }.offer-section--data .offer-section__heading .offer-index { margin-bottom: 24px; }.offer-data-grid { grid-template-columns: 1fr; }.offer-image-placeholder--wide { grid-row: auto; min-height: 260px; }.offer-chart-card { min-height: 330px; }.offer-footer { display: block; padding: 22px 0 34px; line-height: 2; }.offer-page__backdrop { background-image: var(--offer-bg-mobile); background-position: center top; }
+  .offer-cta {width: 32em;}
 }
 
 .offer-subjects { margin-top: 34px; padding-top: 18px; border-top: 1px solid #b9b9b9; }
@@ -185,14 +186,13 @@ button { font: inherit; }
 @media (max-width: 760px) {
   .offer-nav__logo { width: 32px; height: 32px; }
   .offer-nav__logo img { width: 100%; height: 100%; }
-  .offer-hero__stamp img { width: 150px; max-height: 120px; }
+  .offer-hero__stamp img { width: 8em; max-height: 20em;}
 }
 
 /* Mobile-only: il lockup della hero segue il pulsante, mentre desktop resta invariato. */
 @media (max-width: 760px) {
   .offer-hero { flex-direction: column; align-items: flex-start; justify-content: flex-end; }
-  .offer-hero__stamp { position: static; align-self: center; width: 100%; margin-top: 22px; align-items: center; transform: none; }
-  .offer-hero__stamp img { width: 150px; max-height: 120px; }
+  .offer-hero__stamp { position: static; align-self: center; width: 100%; align-items: center; transform: none; }
 }
 
 /* Hero più compatta sopra il titolo; su mobile il lockup resta sotto il pulsante. */
@@ -201,10 +201,3 @@ button { font: inherit; }
   .offer-hero { min-height: 680px; padding-top: 28px; justify-content: flex-start; }
 }
 
-@media (max-width: 760px) {
-  .offer-hero__stamp { margin-top: 42px; }
-}
-
-@media (max-width: 760px) {
-  .offer-hero__stamp { margin-top: 58px; gap: 4px; }
-}
