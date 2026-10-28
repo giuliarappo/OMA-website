@@ -222,20 +222,7 @@ export default function GameCanvas() {
       offerButtonSubtitle.position.set(offerButtonWidth / 2, 39);
       offerButton.addChild(offerButtonSubtitle);
 
-      const hint = new Text({
-      text: "\u2190 \u279E MUOVITI \u2191 SALTARE",
-      style: new TextStyle({
-        fontFamily: "Press Start 2P, monospace",
-        fontSize: 18,
-        fill: 0x555555,
-        letterSpacing: 1,
-      }),
-      });
-    hint.anchor.set(0.5, 0); // origine al centro orizzontale
-    hint.position.set(
-      offerButtonX + offerButtonWidth / 2,         // stessa X del centro del pulsante
-      offerButtonY + offerButtonHeight + 12,       // 12 px sotto il pulsante
-    );
+      
     // world.addChild(hint);
       const credits = new Text({
         text: "Realizzato da:\nGiulia Rappo, Antonio Russo",
@@ -336,7 +323,6 @@ export default function GameCanvas() {
       };
       drawPlayer(0, 1);
       world.addChild(player);
-      world.addChildAt(hint, world.getChildIndex(player));
 
 
       
