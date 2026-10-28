@@ -149,9 +149,7 @@ export default function GameCanvas() {
       };      
 
       const isMobileViewport = app.screen.width <= 700;
-      const openingScreenTexture = await Assets.load(
-        isMobileViewport ? MOBILE_OPENING_SCREEN : DESKTOP_OPENING_SCREEN,
-      );
+      const openingScreenTexture = await Assets.load(DESKTOP_OPENING_SCREEN);
       const openingScreen = new Sprite(openingScreenTexture);
       openingScreen.label = isMobileViewport ? "opening-screen-mobile" : "opening-screen-desktop";
 
@@ -160,19 +158,19 @@ export default function GameCanvas() {
 
       // Su portrait lo sprite non deve superare la larghezza visibile
       const spriteW = Math.min(420, visibleWorldW * 0.9);
-      openingScreen.scale.set(isMobile ? 0.7 : 1);
+      openingScreen.scale.set(isMobile ? 0.8 : 1);
 
       const openingGap = isPortrait ? 160 : 40; // distanza dalla piattaforma: più alto = più in alto
-      const openingX = isPortrait ? 5 : 300; // centrato su portrait
-      openingScreen.position.set(openingX + 100, platforms[0].y - openingScreen.height - openingGap);
+      const openingX = isPortrait ? 80 : 300; // centrato su portrait
+      openingScreen.position.set(openingX, platforms[0].y - openingScreen.height - openingGap);
       world.addChild(openingScreen);
 
       // PULSANTE PER CHI NON HA TEMPO DI GIOCARE
       const offerButton = new Container({ label: "offer-formativa-button" });
-      const offerButtonWidth = 520;
-      const offerButtonHeight = 64;
+      const offerButtonWidth = 450;
+      const offerButtonHeight = 70;
       const offerButtonX = openingX;
-      const offerButtonY = 516;
+      const offerButtonY = 652;
       const offerButtonBackground = new Graphics({ roundPixels: true });
       const drawOfferButtonBackground = (hovered: boolean) => {
         offerButtonBackground.clear();
@@ -197,7 +195,7 @@ export default function GameCanvas() {
       offerButton.addChild(offerButtonCursor);
 
       const offerButtonTitle = new Text({
-        text: "NON HAI TEMPO DI GIOCARE CON NOI?",
+        text: "NON HAI TEMPO PER GIOCARE?",
         style: new TextStyle({
           fontFamily: "Press Start 2P, monospace",
           fontSize: 10,
@@ -331,8 +329,10 @@ export default function GameCanvas() {
       // Testi responsive e centrati: sottotitolo 16-18, titolo che si adatta alla larghezza
       let offerLayoutKey = "";
       const updateOfferTextSize = (zoom: number) => {
+        const isMobile = app.screen.width <= 700;
+        const TITLE_BASE = isMobile ? 18 : 12; // mobile : desktop
+        const preferredTitle = TITLE_BASE;
         const sub = Math.max(16, Math.min(18, Math.round(16 / zoom)));
-        const preferredTitle = Math.max(10, Math.min(16, Math.round(6.5 / zoom) + 2));
         const key = `${sub}-${preferredTitle}`;
         if (key === offerLayoutKey) return; // evita di ridisegnare il testo a ogni frame
         offerLayoutKey = key;
@@ -355,7 +355,7 @@ export default function GameCanvas() {
         offerButtonSubtitle.position.set(offerButtonWidth / 2, top + titleSize + gap);
       };
 
-      offerButton.position.set(offerButtonX, offerButtonY);
+      offerButton.position.set(offerButtonX - 50, offerButtonY);
       offerButton.eventMode = "static";
       offerButton.cursor = "pointer";
       offerButton.hitArea = new Rectangle(0, 0, offerButtonWidth, offerButtonHeight);
@@ -480,14 +480,12 @@ export default function GameCanvas() {
       const returningFromPortraitRoom = sessionStorage.getItem("return-from-portrait-room") === "1";
       const returningFromDocumentation = sessionStorage.getItem("return-from-documentation") === "1";
       const returningFromDocumentationRightHole = sessionStorage.getItem("return-from-documentation-right-hole") === "1";
-      const homeReturnSide = sessionStorage.getItem("home-return-side");
       sessionStorage.removeItem("return-to-intermediate");
       sessionStorage.removeItem("return-from-portrait-room");
       sessionStorage.removeItem("return-from-documentation");
       sessionStorage.removeItem("return-from-documentation-right-hole");
-      sessionStorage.removeItem("home-return-side");
       const playerState = {
-        x: returningFromRoom ? FIRST_DOOR.x + 60 : returningFromPortraitRoom ? SECOND_DOOR.x + 60 : returningFromDocumentationRightHole ? THIRD_DOOR.x + DOOR_WIDTH + 18 : returningFromDocumentation ? THIRD_DOOR.x + 60 : homeReturnSide === "left" ? 120 : homeReturnSide === "right" ? WORLD_WIDTH - PLAYER_WIDTH - 120 : 180,
+        x: returningFromRoom ? FIRST_DOOR.x + 60 : returningFromPortraitRoom ? SECOND_DOOR.x + 60 : returningFromDocumentationRightHole ? THIRD_DOOR.x + DOOR_WIDTH + 18 : returningFromDocumentation ? THIRD_DOOR.x + 60 : 180,
         y: returningFromRoom ? FIRST_DOOR.y + DOOR_HEIGHT - PLAYER_HEIGHT : returningFromPortraitRoom ? SECOND_DOOR.y + DOOR_HEIGHT - PLAYER_HEIGHT : returningFromDocumentationRightHole ? THIRD_DOOR.y + DOOR_HEIGHT - PLAYER_HEIGHT : returningFromDocumentation ? THIRD_DOOR.y + DOOR_HEIGHT - PLAYER_HEIGHT : 650 - PLAYER_HEIGHT,
         vx: 0,
         vy: 0,
@@ -566,7 +564,20 @@ export default function GameCanvas() {
         playerState.vy += GRAVITY * dt;
         const previousBottom = playerState.y + PLAYER_HEIGHT;
         playerState.x += playerState.vx * dt;
-        playerState.x = Math.max(0, Math.min(WORLD_WIDTH - PLAYER_WIDTH, playerState.x));
+
+        let wrappedToRight = false;
+        let wrappedToLeft = false;
+
+        if (playerState.x + PLAYER_WIDTH <= 0) {
+          // Se supera il bordo sinistro, ricompare a destra.
+          playerState.x = WORLD_WIDTH - PLAYER_WIDTH;
+          wrappedToRight = true;
+        } else if (playerState.x >= WORLD_WIDTH) {
+          // Se supera il bordo destro, ricompare a sinistra.
+          playerState.x = 0;
+          wrappedToLeft = true;
+        }
+
         playerState.y += playerState.vy * dt;
         playerState.grounded = false;
         if (playerState.vy >= 0) {
@@ -581,16 +592,6 @@ export default function GameCanvas() {
         }
         const currentBottom = playerState.y + PLAYER_HEIGHT;
         if (previousBottom <= BASE_Y && currentBottom > BASE_Y && playerState.vy > 0) playGameSound("fall");
-        if (playerState.x >= WORLD_WIDTH - 90) {
-          // sessionStorage.setItem("home-return-side", "left")
-          navigate("/game")
-          return;
-        }
-        if (playerState.x <= 20 && playerState.grounded) {
-          // sessionStorage.setItem("home-return-side", "right")
-          navigate("/game");
-          return;
-        }
         if (playerState.y > WORLD_HEIGHT + 120) {
           playerState.x = 120;
           playerState.y = 650 - PLAYER_HEIGHT;
@@ -605,8 +606,25 @@ export default function GameCanvas() {
         const viewW = screenWidth / zoom; // quanto mondo è visibile
         const viewH = screenHeight / zoom;
 
-        cameraX += ((playerState.x - viewW * 0.35) - cameraX) * Math.min(1, dt * 5);
-        cameraX = Math.max(0, Math.min(Math.max(0, WORLD_WIDTH - viewW), cameraX));
+        if (wrappedToRight) {
+          // Il personaggio è uscito a sinistra:
+          // la camera mostra immediatamente il lato destro.
+          cameraX = Math.max(0, WORLD_WIDTH - viewW);
+          } else if (wrappedToLeft) {
+            // Il personaggio è uscito a destra:
+            // la camera mostra immediatamente il lato sinistro.
+            cameraX = 0;
+          } else {
+            cameraX +=
+              ((playerState.x - viewW * 0.35) - cameraX) *
+              Math.min(1, dt * 5);
+          }
+
+          cameraX = Math.max(
+            0,
+            Math.min(Math.max(0, WORLD_WIDTH - viewW), cameraX),
+          );
+
         cameraY += ((playerState.y - viewH * 0.58) - cameraY) * Math.min(1, dt * 5);
         cameraY = Math.max(0, Math.min(Math.max(0, WORLD_HEIGHT - viewH), cameraY));
 
