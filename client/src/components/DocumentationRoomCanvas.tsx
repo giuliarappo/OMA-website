@@ -111,7 +111,6 @@ function addEntranceText(world: Container, viewportWidth: number) {
   const panelBackground = new Graphics({ label: "documentation-entrance-text-background" });
   panelBackground.roundRect(boxX, boxY, boxWidth, boxHeight, 4).fill({ color: 0x111111, alpha: 0.94 });
   panelBackground.roundRect(boxX, boxY, boxWidth, boxHeight, 4).stroke({ color: 0x8f8f8f, alpha: 0.78, width: 2, pixelLine: true });
-  panelBackground.rect(boxX + 16, boxY + 24, 5, boxHeight - 38).fill({ color: 0xd8d8d8, alpha: 0.9 });
   panel.addChild(panelBackground);
   const heading = new Text({
     text: "LA CURA ANOMALA, 2026",
@@ -585,7 +584,7 @@ export default function DocumentationRoomCanvas() {
         if (entranceText.isMobile) {
           // Sul mobile il box segue la viewport, non la coordinata del mondo:
           // resta leggibile anche quando la camera avanza verso le foto.
-          entranceText.panel.position.x = cameraX + Math.max(10, (screenWidth - entranceText.panel.width) / 2);
+          entranceText.panel.position.x = 320 + Math.max(10, (screenWidth - entranceText.panel.width) / 2);
         }
         if (wrappedToRight) {
           cameraX = Math.max(0, WORLD_WIDTH - screenWidth);
