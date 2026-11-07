@@ -1,12 +1,16 @@
 const SOUND_URLS = {
   jump: {
-    primary: "/assets/jumpshort.mp3",
+    primary: "/assets/SALTO.mp3",
     fallback: "/assets/jump.mp3",
   },
   fall: {
-    primary: "/assets/urlocaduta_eco.mp3",
+    primary: "/assets/CADUTA.mp3",
     fallback: "/assets/urlocaduta.mp3",
   },
+  door: {
+    primary: "assets/PORTA.mp3",
+    fallback: "assets/PORTA.mp3"
+  }
   
 } as const;
 

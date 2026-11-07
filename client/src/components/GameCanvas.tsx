@@ -591,7 +591,7 @@ export default function GameCanvas() {
           }
         }
         const currentBottom = playerState.y + PLAYER_HEIGHT;
-        if (previousBottom <= BASE_Y && currentBottom > BASE_Y && playerState.vy > 0) playGameSound("fall");
+        if (playerState.vy > 0) playGameSound("fall");
         if (playerState.y > WORLD_HEIGHT + 120) {
           playerState.x = 120;
           playerState.y = 650 - PLAYER_HEIGHT;
