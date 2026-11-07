@@ -1,5 +1,6 @@
 import { Graphics } from "pixi.js";
 import { overlaps, type Rect } from "./utils_graphics";
+import { playGameSound } from "./lib/gameAudio";
 
 export const PLAYER_WIDTH = 24;
 export const PLAYER_HEIGHT = 48;
@@ -8,6 +9,7 @@ export const PLAYER_SPAWN_X = 100;
 const GRAVITY = 900;
 const WALK_SPEED = 120;
 const JUMP_SPEED = 600;
+const LAND_MIN_SPEED = 350;
 
 export type InputState = { left: boolean; right: boolean; jump: boolean };
 type Facing = 1 | -1;
@@ -49,6 +51,7 @@ export class Player {
   grounded = false;
   onFall?: () => void;
   onJump?: () => void;
+  onLand?: (impact: number) => void;
 
   private spawn: { x: number; y: number };
   private world: { width: number; height: number };
@@ -83,7 +86,7 @@ export class Player {
 
   update(dt: number, input: InputState, platforms: Rect[]) {
     this.time += dt;
-
+    const wasGrounded = this.grounded;
     // Movimento orizzontale con un po' di inerzia
     const direction = Number(input.right) - Number(input.left);
     this.vx += (direction * WALK_SPEED - this.vx) * Math.min(1, dt * 12);
@@ -110,9 +113,11 @@ export class Player {
     if (this.vy >= 0) {
       for (const platform of platforms) {
         if (previousBottom <= platform.y && overlaps(this.rect, platform)) {
+          const impact = this.vy; 
           this.y = platform.y - PLAYER_HEIGHT;
           this.vy = 0;
           this.grounded = true;
+          if (!wasGrounded && impact > LAND_MIN_SPEED) this.onLand?.(impact);
           break;
         }
       }
@@ -136,6 +141,7 @@ export class Player {
 
     const key = `${swing}|${legSwing}|${this.facing}`;
     if (key !== this.drawnKey) {
+      
       this.drawnKey = key;
       drawPlayer(this.view, swing, legSwing, this.facing);
     }

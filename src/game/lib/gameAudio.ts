@@ -1,16 +1,20 @@
 const SOUND_URLS = {
   jump: {
     primary: "/assets/SALTO.mp3",
-    fallback: "/assets/jump.mp3",
+    fallback: "/assets/SALTO.mp3",
   },
   fall: {
     primary: "/assets/CADUTA.mp3",
-    fallback: "/assets/urlocaduta.mp3",
+    fallback: "/assets/CADUTA.mp3",
   },
-  door: {
-    primary: "assets/PORTA.mp3",
-    fallback: "assets/PORTA.mp3"
-  }
+  passi: {
+    primary: "/assets/PASSI.mp3",
+    fallback: "/assets/PASSI.mp3",
+  },
+  impatto: {
+    primary: "/assets/IMPATTO.mp3",
+    fallback: "/assets/IMPATTO.mp3",
+  },
   
 } as const;
 
@@ -19,6 +23,7 @@ const audioCache = new Map<SoundName, HTMLAudioElement>();
 
 let backgroundMusic: HTMLAudioElement | null = null;
 let backgroundMusicStarted = false;
+let landContext: AudioContext | null = null;
 
 export function startBackgroundMusic() {
   if (typeof window === "undefined") return;
@@ -115,4 +120,33 @@ export function playDoorActivationSound() {
     oscillator.stop(start + 0.14);
     window.setTimeout(() => void context.close(), 220);
   }).catch(() => void context.close());
+}
+
+
+export function playLandSound(impact = 700) {
+  if (typeof window === "undefined") return;
+  const AudioContextConstructor = window.AudioContext
+    || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!AudioContextConstructor) return;
+
+  landContext ??= new AudioContextConstructor();   // uno solo, riusato
+  const context = landContext;
+  void context.resume();
+
+  const t = context.currentTime;
+  const strength = Math.max(0.35, Math.min(1, impact / 1000));
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+
+  oscillator.type = "triangle";                    // "square" per un suono più 8-bit
+  oscillator.frequency.setValueAtTime(150, t);
+  oscillator.frequency.exponentialRampToValueAtTime(45, t + 0.1);
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(0.16 * strength, t + 0.008);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+  oscillator.start(t);
+  oscillator.stop(t + 0.13);
 }

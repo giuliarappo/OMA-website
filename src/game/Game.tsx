@@ -3,7 +3,7 @@ import { drawPlatforms, setBackdrop, type Rect } from "./utils_graphics";
 import { Door, DOOR_WIDTH } from "./Door";
 import { Player, PLAYER_HEIGHT, PLAYER_WIDTH, type InputState } from "./Player";
 import type { Decor, DecorContext, RoomConfig, ViewInfo } from "./rooms";
-import { playGameSound } from "./lib/gameAudio";
+import { playGameSound, playLandSound } from "./lib/gameAudio";
 
 const lastDoorUsed = new Map<string, string>();
 
@@ -51,6 +51,7 @@ export class Game {
     const fallTarget = room.fallTarget;
     if (fallTarget) this.player.onFall = () => this.leave(fallTarget);
     this.player.onJump = () => playGameSound("jump");
+    this.player.onLand = (impact) => playLandSound(impact);
   }
 
   // ---------- ciclo di vita ----------
@@ -195,11 +196,11 @@ export class Game {
     this.keys[key] = pressed;
   }
 
-  private playFallSound(bottomBefore: number) {
+  private playFallSound() {
     const ground = this.room.groundY;
     if (ground === undefined) return;
     const p = this.player;
-    if (bottomBefore <= ground && p.y + PLAYER_HEIGHT > ground && p.vy > 0) {
+    if (p.y + PLAYER_HEIGHT > ground && p.vy > 0) {
         playGameSound("fall");
     }
   }
@@ -220,9 +221,8 @@ export class Game {
 
     if (this.updateDoors(dt)) return; // sei entrato in una porta: niente salto
     this.player.update(dt, this.keys, this.platforms);
-    const bottomBefore = this.player.y + PLAYER_HEIGHT;
     this.player.update(dt, this.keys, this.platforms);
-    this.playFallSound(bottomBefore);
+    this.playFallSound();
     this.updateCamera(dt);
   };
 
