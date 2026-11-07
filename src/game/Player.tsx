@@ -1,6 +1,5 @@
 import { Graphics } from "pixi.js";
 import { overlaps, type Rect } from "./utils_graphics";
-import { playGameSound } from "./lib/gameAudio";
 
 export const PLAYER_WIDTH = 24;
 export const PLAYER_HEIGHT = 48;
