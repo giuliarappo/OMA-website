@@ -49,7 +49,9 @@ export class Game {
       height: room.worldHeight,
     });
     const fallTarget = room.fallTarget;
-    if (fallTarget) this.player.onFall = () => this.leave(fallTarget);
+    if (fallTarget) this.player.onFall = () => this.leave(fallTarget); 
+    
+    
     this.player.onJump = () => playGameSound("jump");
     this.player.onLand = () => playGameSound("impatto");
   }
@@ -215,6 +217,7 @@ export class Game {
   // ---------- loop ----------
 
   private update = (ticker: Ticker) => {
+    this.playFallSound();
     if (this.leaving) return;
 
     const dt = Math.min(ticker.deltaMS / 1000, 0.033);
@@ -229,8 +232,6 @@ export class Game {
     this.updateWalkSound()
     if (this.updateDoors(dt)) return; // sei entrato in una porta: niente salto
     this.player.update(dt, this.keys, this.platforms);
-    this.player.update(dt, this.keys, this.platforms);
-    this.playFallSound();
     this.updateCamera(dt);
   };
 

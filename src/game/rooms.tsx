@@ -83,9 +83,9 @@ export const COSA_FACCIAMO: RoomConfig = {
     id: "cosa-facciamo",
     worldWidth: 1000,
     worldHeight: 900,
-    spawn: { x: PLAYER_SPAWN_X, y: 650 - PLAYER_HEIGHT },
+    spawn: { x: 200, y: 650 - PLAYER_HEIGHT },
     groundY: 650,
-    platforms: [{ x: 0, y: 650, w: 1000, h: 80 }],
+    platforms: [{ x: -500, y: 650, w: 2000, h: 80 }],
     doors: [
         { platformIndex: 0, target: "/", kind: "exit" },
         { platformIndex: 0, target: "/progetti/la-cura-anomala", x: 450 },
@@ -108,6 +108,23 @@ export const SALA_RITRATTI: RoomConfig = {
     assets: TEAM.map((m) => m.thumb),
     decor: (ctx) => [
         pit(110, 650, 160),
-        portraitWall(TEAM, { x: 520, y: 470, spacing: 210 }, ctx),
+        portraitWall(TEAM, { x: 205, y: 470, spacing: 280 }, ctx),
     ],
 };
+
+export const LA_CURA_ANOMALA: RoomConfig = {
+  id: "la-cura-anomala",
+  worldWidth: 2000,
+  worldHeight: 900,
+  spawn: { x: 500, y: 650 - PLAYER_HEIGHT },
+  groundY: 650,
+  platforms: [
+        { x: 0, y: 650, w: 110, h: 80 },
+        { x: 270, y: 650, w: 1430, h: 80 },   // in mezzo il buco (110 → 270)
+        { x: 1900, y: 650, w: 500, h: 80 },   // in mezzo il buco (110 → 270)
+  ],
+  doors: [
+        { platformIndex: 1, target: "/", kind: "exit" },
+    ],
+  fallTarget: "/", 
+}
