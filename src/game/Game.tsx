@@ -51,7 +51,7 @@ export class Game {
     const fallTarget = room.fallTarget;
     if (fallTarget) this.player.onFall = () => this.leave(fallTarget);
     this.player.onJump = () => playGameSound("jump");
-    this.player.onLand = (impact) => playLandSound(impact);
+    this.player.onLand = () => playGameSound("impatto");
   }
 
   // ---------- ciclo di vita ----------
@@ -241,8 +241,8 @@ export class Game {
       const near = door.isNear(rect);
       door.update(this.elapsed, dt, near);
       if (near && this.keys.jump && this.player.grounded) {
+        playGameSound("door")
         if (door.target) {
-            //playGameSound("door")
             if (door.kind !== "exit") lastDoorUsed.set(this.room.id, door.target);
                 this.leave(door.target);
         }

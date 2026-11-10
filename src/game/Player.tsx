@@ -50,7 +50,7 @@ export class Player {
   grounded = false;
   onFall?: () => void;
   onJump?: () => void;
-  onLand?: (impact: number) => void;
+  onLand?: () => void;
 
   private spawn: { x: number; y: number };
   private world: { width: number; height: number };
@@ -116,7 +116,7 @@ export class Player {
           this.y = platform.y - PLAYER_HEIGHT;
           this.vy = 0;
           this.grounded = true;
-          if (!wasGrounded && impact > LAND_MIN_SPEED) this.onLand?.(impact);
+          if (!wasGrounded && impact > LAND_MIN_SPEED) this.onLand?.();
           break;
         }
       }
