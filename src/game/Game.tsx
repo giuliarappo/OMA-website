@@ -232,7 +232,6 @@ export class Game {
     this.updateWalkSound()
     if (this.updateDoors(dt)) return; // sei entrato in una porta: niente salto
     this.player.update(dt, this.keys, this.platforms);
-    this.player.update(dt, this.keys, this.platforms);
     this.updateCamera(dt);
   };
 
