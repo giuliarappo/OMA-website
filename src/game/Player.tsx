@@ -5,9 +5,9 @@ export const PLAYER_WIDTH = 24;
 export const PLAYER_HEIGHT = 48;
 export const PLAYER_SPAWN_X = 100;
 
-const GRAVITY = 1500;
-const WALK_SPEED = 250;
-const JUMP_SPEED = 700;
+const GRAVITY = 900;
+const WALK_SPEED = 120;
+const JUMP_SPEED = 600;
 const LAND_MIN_SPEED = 350;
 
 export type InputState = { left: boolean; right: boolean; jump: boolean };
