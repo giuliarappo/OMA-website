@@ -3,7 +3,7 @@ import { drawPlatforms, setBackdrop, type Rect } from "./utils_graphics";
 import { Door, DOOR_WIDTH } from "./Door";
 import { Player, PLAYER_HEIGHT, PLAYER_WIDTH, type InputState } from "./Player";
 import type { Decor, DecorContext, RoomConfig, ViewInfo } from "./rooms";
-import { playGameSound, playLandSound, startWalkSound, stopWalkSound } from "./lib/gameAudio";
+import { playGameSound, startWalkSound, stopWalkSound } from "./lib/gameAudio";
 
 const lastDoorUsed = new Map<string, string>();
 
