@@ -161,7 +161,7 @@ export function startWalkSound() {
   if (typeof window === "undefined") return;
 
   if (!walkAudio) {
-    walkAudio = new Audio("assets/PASSI.mp3");
+    walkAudio = new Audio("assets/PASSI_NUOVO.mp3");
     walkAudio.loop = true;
     walkAudio.preload = "auto"
     walkAudio.volume = 0.4;
