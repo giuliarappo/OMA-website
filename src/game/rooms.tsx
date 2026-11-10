@@ -87,7 +87,7 @@ export const COSA_FACCIAMO: RoomConfig = {
     groundY: 650,
     platforms: [{ x: 0, y: 650, w: 1000, h: 80 }],
     doors: [
-        { platformIndex: 0, target: "/game", kind: "exit" },
+        { platformIndex: 0, target: "/", kind: "exit" },
         { platformIndex: 0, target: "/progetti/la-cura-anomala", x: 450 },
         { platformIndex: 0, target: "/progetti/due", x: 700 },
     ],
@@ -103,8 +103,8 @@ export const SALA_RITRATTI: RoomConfig = {
         { x: 0, y: 650, w: 110, h: 80 },
         { x: 270, y: 650, w: 1930, h: 80 },   // in mezzo il buco (110 → 270)
     ],
-    doors: [{ platformIndex: 1, target: "/game", kind: "exit", x: 1490 }],
-    fallTarget: "/game",                    // cadere nel buco riporta all'hub, come prima
+    doors: [{ platformIndex: 1, target: "/", kind: "exit", x: 1490 }],
+    fallTarget: "/",                    // cadere nel buco riporta all'hub, come prima
     assets: TEAM.map((m) => m.thumb),
     decor: (ctx) => [
         pit(110, 650, 160),
