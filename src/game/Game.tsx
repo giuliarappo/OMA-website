@@ -3,7 +3,7 @@ import { drawPlatforms, setBackdrop, type Rect } from "./utils_graphics";
 import { Door, DOOR_WIDTH } from "./Door";
 import { Player, PLAYER_HEIGHT, PLAYER_WIDTH, type InputState } from "./Player";
 import type { Decor, DecorContext, RoomConfig, ViewInfo } from "./rooms";
-import { playGameSound, playLandSound } from "./lib/gameAudio";
+import { playGameSound, playLandSound, startWalkSound, stopWalkSound } from "./lib/gameAudio";
 
 const lastDoorUsed = new Map<string, string>();
 
@@ -96,6 +96,7 @@ export class Game {
 
   destroy() {
     this.destroyed = true;
+    stopWalkSound();
     window.removeEventListener("keydown", this.onKeyDown);
     window.removeEventListener("keyup", this.onKeyUp);
     window.removeEventListener("blur", this.onBlur);
@@ -205,6 +206,12 @@ export class Game {
     }
   }
 
+  updateWalkSound() {
+    const walking = this.keys.left !== this.keys.right;
+    if (walking && this.player.grounded) startWalkSound();
+    else stopWalkSound();
+  }
+
   // ---------- loop ----------
 
   private update = (ticker: Ticker) => {
@@ -219,6 +226,7 @@ export class Game {
 
     this.decor.forEach((d) => d.update?.(this.elapsed, dt));
 
+    this.updateWalkSound()
     if (this.updateDoors(dt)) return; // sei entrato in una porta: niente salto
     this.player.update(dt, this.keys, this.platforms);
     this.player.update(dt, this.keys, this.platforms);
@@ -249,6 +257,7 @@ export class Game {
   private leave(target: string) {
     if (this.leaving) return;
     this.leaving = true;
+    stopWalkSound();
     this.onEnterDoor?.(target);
   }
 

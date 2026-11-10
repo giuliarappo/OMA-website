@@ -1,20 +1,24 @@
 const SOUND_URLS = {
   jump: {
-    primary: "/assets/SALTO.mp3",
-    fallback: "/assets/SALTO.mp3",
+    primary: "/assets/SALTO3.mp3",
+    fallback: "/assets/SALTO3.mp3",
   },
   fall: {
-    primary: "/assets/CADUTA.mp3",
-    fallback: "/assets/CADUTA.mp3",
+    primary: "/assets/CADUTA2.mp3",
+    fallback: "/assets/CADUTA2.mp3",
   },
   passi: {
     primary: "/assets/PASSI.mp3",
     fallback: "/assets/PASSI.mp3",
   },
   impatto: {
-    primary: "/assets/IMPATTO.mp3",
-    fallback: "/assets/IMPATTO.mp3",
+    primary: "/assets/IMPATTO2.mp3",
+    fallback: "/assets/IMPATTO2.mp3",
   },
+  door: {
+    primary: "/assets/PORTA2.mp3",
+    fallback: "/assets/PORTA2.mp3",
+  }
   
 } as const;
 
@@ -24,6 +28,8 @@ const audioCache = new Map<SoundName, HTMLAudioElement>();
 let backgroundMusic: HTMLAudioElement | null = null;
 let backgroundMusicStarted = false;
 let landContext: AudioContext | null = null;
+let walkAudio: HTMLAudioElement | null = null;
+
 
 export function startBackgroundMusic() {
   if (typeof window === "undefined") return;
@@ -149,4 +155,24 @@ export function playLandSound(impact = 700) {
   gain.connect(context.destination);
   oscillator.start(t);
   oscillator.stop(t + 0.13);
+}
+
+export function startWalkSound() {
+  if (typeof window === "undefined") return;
+
+  if (!walkAudio) {
+    walkAudio = new Audio("assets/PASSI.mp3");
+    walkAudio.loop = true;
+    walkAudio.preload = "auto"
+    walkAudio.volume = 0.4;
+  }
+  if (!walkAudio.paused) return;
+
+  void walkAudio.play().catch((err) => console.error(err)) 
+}
+
+export function stopWalkSound() {
+  if (!walkAudio || walkAudio.paused) return;
+  walkAudio.pause();
+  walkAudio.currentTime = 0;
 }
