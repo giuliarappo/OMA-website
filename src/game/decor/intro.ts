@@ -1,9 +1,10 @@
 import { Assets, Container, Graphics, Rectangle, Sprite, Text, Texture } from "pixi.js";
 import type { Decor, ViewInfo } from "../rooms";
 import { signPanel, type Rect } from "../utils_graphics";
+import { PLAYER_SPAWN_X } from "../Player";
 
-export const HERO_DESKTOP = "/assets/OMA_Hero.svg";
-export const HERO_MOBILE = "/assets/OMA_Hero.svg";
+export const HERO_DESKTOP = "/assets/OMA_Hero.png";
+export const HERO_MOBILE = "/assets/OMA_Hero.png";
 
 const FONT = "Press Start 2P, monospace";
 const HERO_MAX_SCALE = 0.8;   // com'è oggi a schermo
@@ -66,6 +67,10 @@ export function offerButton(platform: Rect, onClick: () => void): Decor {
   button.cursor = "pointer";
   button.on("pointertap", onClick);
   view.addChild(hint, button);
+  let istruzioniImg = Assets.get<Texture>("/assets/istruzioni.png")
+  let instruzioni = new Sprite(istruzioniImg)
+  instruzioni.position.set(PLAYER_SPAWN_X, 650);
+  view.addChild(instruzioni);
 
   let w = 220;
   let hovered = false;

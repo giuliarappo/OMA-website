@@ -1,15 +1,15 @@
 const SOUND_URLS = {
   jump: {
-    primary: "/assets/SALTO3.mp3",
-    fallback: "/assets/SALTO3.mp3",
+    primary: "/assets/SALTO_NUOVO.mp3",
+    fallback: "/assets/SALTO_NUOVO.mp3",
   },
   fall: {
     primary: "/assets/CADUTA2.mp3",
     fallback: "/assets/CADUTA2.mp3",
   },
   passi: {
-    primary: "/assets/PASSI.mp3",
-    fallback: "/assets/PASSI.mp3",
+    primary: "/assets/PASSI_NUOVO.mp3",
+    fallback: "/assets/PASSI_NUOVO.mp3",
   },
   impatto: {
     primary: "/assets/IMPATTO2.mp3",

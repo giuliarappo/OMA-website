@@ -4,6 +4,7 @@ import type { Container } from "pixi.js";
 import { creditsSign, HERO_DESKTOP, HERO_MOBILE, offerButton, openingHero } from "./decor/intro";
 import { pit, portraitWall } from "./decor/portraits";
 import { TEAM } from "./team";
+import { iconsDecor } from "./decor/la-cura-anomala";
 
 export interface DoorConfig {
   platformIndex: number;
@@ -44,6 +45,13 @@ export interface Decor {
   update?(time: number, dt: number): void;
 }
 
+export interface IconItem {
+  src: string;
+  x: number;        // centro orizzontale, in coordinate del mondo
+  y: number;        // bordo basso dell'icona (650 = poggiata sul pavimento)
+  height?: number;  // altezza in unità di mondo, la larghezza segue le proporzioni
+}
+
 const HUB_PLATFORMS: Rect[] = [
     { x: 0, y: 650, w: 700, h: 80 },
     { x: 820, y: 650, w: 520, h: 80 },
@@ -57,6 +65,11 @@ const HUB_PLATFORMS: Rect[] = [
     { x: 3150, y: 480, w: 460, h: 24 },
     { x: 3500, y: 380, w: 400, h: 24 },
   ]
+
+const LA_CURA_ITEMS: IconItem[] = [
+  { src: "/assets/scala.png", x: 700, y: 650, height: 120 },
+  // { src: "/assets/altra.png", x: 1000, y: 480, height: 90 },   // sospesa in aria
+];
 
 export const HUB: RoomConfig = {
     id: "hub",
@@ -126,5 +139,7 @@ export const LA_CURA_ANOMALA: RoomConfig = {
   doors: [
         { platformIndex: 1, target: "/", kind: "exit" },
     ],
+  assets: LA_CURA_ITEMS.map((i) => i.src),
+  decor: () => iconsDecor(LA_CURA_ITEMS),
   fallTarget: "/", 
 }
