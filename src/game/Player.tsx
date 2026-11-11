@@ -1,4 +1,4 @@
-import { Graphics } from "pixi.js";
+import { Graphics, isMobile } from "pixi.js";
 import { overlaps, type Rect } from "./utils_graphics";
 
 export const PLAYER_WIDTH = 24;
@@ -8,6 +8,8 @@ export const PLAYER_SPAWN_X = 100;
 const GRAVITY = 1500;
 const WALK_SPEED = 250;
 const JUMP_SPEED = 700;
+
+const FALL = isMobile ? 700 : 650;
 
 export type InputState = { left: boolean; right: boolean; jump: boolean };
 type Facing = 1 | -1;
@@ -122,7 +124,7 @@ export class Player {
         }
       }
     }
-    if (!this.isFalling && this.y > 650) {
+    if (!this.isFalling && this.y > FALL) {
       this.onFall?.();
       this.isFalling = true;
     }
