@@ -111,7 +111,6 @@ export class Door {
   isNear(player: Rect) {
     const dx = Math.abs(player.x + player.w / 2 - (this.bounds.x + this.bounds.w / 2));
     const dy = Math.abs(player.y + player.h - (this.bounds.y + this.bounds.h));
-    playGameSound("nearDoor");
     return dx < 60 && dy < 40;
   }
 
