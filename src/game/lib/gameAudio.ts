@@ -20,8 +20,8 @@ const SOUND_URLS = {
     fallback: "/assets/PORTA2.mp3",
   },
   nearDoor: {
-    primary: "/assets/BUSSO.mp3",
-    fallback: "/assets/BUSSO.mp3"
+    primary: "/assets/SUONO_PORTA.mp3",
+    fallback: "/assets/SUONO_PORTA.mp3"
   }
   
 } as const;

@@ -145,7 +145,10 @@ export class Game {
           label: d.label
         }),
     );
-    this.doors.forEach((d) => this.world.addChild(d.view));
+    this.doors.forEach((d) => {
+      d.onPlayerNear = () => playGameSound("nearDoor");
+      this.world.addChild(d.view);
+    }) 
 
     // Ritorno da un'altra stanza: riappari accanto alla porta da cui eri uscito
     const back = lastDoorUsed.get(this.room.id);
@@ -241,20 +244,9 @@ export class Game {
     const rect = this.player.rect;
     for (const door of this.doors) {
       const near = door.isNear(rect);
-      
-      // if (near && !this.suonoPortaAttivo) {
-      //   console.log("vicino");
-      //   playGameSound("nearDoor");
-      //   this.suonoPortaAttivo = true;
-      // }
-      
- 
+
       door.update(this.elapsed, dt, near);
-      door.onPlayerNear = () => 
-        {
-          console.log("vicino");
-          playGameSound("nearDoor");
-        }
+      
       if (near && this.keys.jump && this.player.grounded) {
         playGameSound("door")
         if (door.target) {

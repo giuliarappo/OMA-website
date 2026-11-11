@@ -27,8 +27,8 @@ type DoorOptions = {
 export class Door {
   // Texture condivisa da tutte le porte: si carica una volta sola
   private static promptTexture: Texture | null = null;
-  private suonoPortaAttivo: Boolean = false;
   onPlayerNear?: () => void;
+  wasNear: boolean = false;
 
   static async loadAssets() {
     if (Door.promptTexture) return;
@@ -117,15 +117,10 @@ export class Door {
 
   /** Da chiamare a ogni frame. time = secondi totali, dt = secondi dall'ultimo frame. */
   update(time: number, dt: number, near: boolean) {
+    if (near && !this.wasNear) this.onPlayerNear?.();
+    this.wasNear = near;
     // Dissolvenza morbida verso acceso/spento
-    if (near && !this.suonoPortaAttivo)
-    {
-      this.onPlayerNear?.();
-      this.suonoPortaAttivo = true;
-    }
-    else {
-      this.suonoPortaAttivo = false;
-    }
+
     const target = near ? 1 : 0;
     this.amount += (target - this.amount) * Math.min(1, dt * 10);
     if (Math.abs(target - this.amount) < 0.01) this.amount = target;
