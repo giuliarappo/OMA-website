@@ -48,8 +48,11 @@ export class Game {
       width: room.worldWidth,
       height: room.worldHeight,
     });
-    const fallTarget = room.fallTarget;
-    if (fallTarget) this.player.onFall = () => this.leave(fallTarget); 
+    
+    this.player.onFall = () => {
+      playGameSound("fall");
+    } 
+
     
     
     this.player.onJump = () => playGameSound("jump");
@@ -201,14 +204,7 @@ export class Game {
     this.keys[key] = pressed;
   }
 
-  private playFallSound() {
-    const ground = this.room.groundY;
-    if (ground === undefined) return;
-    const p = this.player;
-    if (p.y + PLAYER_HEIGHT > ground && p.vy > 0) {
-        playGameSound("fall");
-    }
-  }
+  
 
   updateWalkSound() {
     const walking = this.keys.left !== this.keys.right;
@@ -219,7 +215,6 @@ export class Game {
   // ---------- loop ----------
 
   private update = (ticker: Ticker) => {
-    this.playFallSound();
     if (this.leaving) return;
 
     const dt = Math.min(ticker.deltaMS / 1000, 0.033);

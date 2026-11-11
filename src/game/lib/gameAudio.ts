@@ -18,6 +18,10 @@ const SOUND_URLS = {
   door: {
     primary: "/assets/PORTA2.mp3",
     fallback: "/assets/PORTA2.mp3",
+  },
+  nearDoor: {
+    primary: "/assets/CAMPANELLO_PORTA.mp3",
+    fallback: "/assets/CAMPANELLO_PORTA.mp3"
   }
   
 } as const;
@@ -73,7 +77,6 @@ function getAudio(name: SoundName) {
   if (!audio) {
     audio = new Audio(SOUND_URLS[name].primary);
     audio.preload = "auto";
-    audio.volume = name === "fall" ? 0.78 : 0.62;
     audio.addEventListener("error", () => {
       if (audio && audio.src.endsWith(SOUND_URLS[name].primary)) {
         audio.src = SOUND_URLS[name].fallback;

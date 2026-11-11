@@ -9,6 +9,8 @@ export const HERO_MOBILE = "/assets/OMA_Hero.png";
 const FONT = "Press Start 2P, monospace";
 const HERO_MAX_SCALE = 0.8;   // com'è oggi a schermo
 
+export const ISTRUZIONI = "/assets/istruzioni.png"
+
 /** Asse comune: centro della parte di piattaforma visibile all'avvio. */
 function introAxis(v: ViewInfo, platform: Rect) {
   const right = Math.min(platform.x + platform.w, v.w);   // la camera parte da x = 0
@@ -51,25 +53,24 @@ export function offerButton(platform: Rect, onClick: () => void): Decor {
 
   const hint = new Text({
     text: "NON HAI TEMPO PER GIOCARE?",
-    style: { fontFamily: FONT, fontSize: 12, fill: 0x555555 },
+    style: { fontFamily: FONT, fontSize: 12, fill: 0x000000 },
   });
   hint.anchor.set(0.5, 0);
 
   const button = new Container();
   const shadow = new Graphics();
   const face = new Graphics();
-  const title = new Text({ text: "CONTATTACI", style: { fontFamily: FONT, fontSize: 16, fill: 0x555555 } });
+  const title = new Text({ text: "CONTATTACI", style: { fontFamily: FONT, fontSize: 16 } });
   title.anchor.set(0.5);
-  const diamond = new Text({ text: "◆", style: { fontFamily: "monospace", fontSize: 10, fill: 0xaaaaaa } });
-  diamond.anchor.set(0.5);
-  button.addChild(shadow, face, diamond, title);
+  button.addChild(shadow, face, title);
   button.eventMode = "static";
   button.cursor = "pointer";
   button.on("pointertap", onClick);
   view.addChild(hint, button);
   let istruzioniImg = Assets.get<Texture>("/assets/istruzioni.png")
   let instruzioni = new Sprite(istruzioniImg)
-  instruzioni.position.set(PLAYER_SPAWN_X, 650);
+  instruzioni.position.set(PLAYER_SPAWN_X, platform.y - 82);
+  instruzioni.scale.set(0.6);
   view.addChild(instruzioni);
 
   let w = 220;
@@ -78,13 +79,10 @@ export function offerButton(platform: Rect, onClick: () => void): Decor {
   const draw = () => {
     shadow.clear().rect(4, 4, w, BTN_H).fill({ color: 0x000000, alpha: 0.6 });
     face.clear().rect(0, 0, w, BTN_H).fill({ color: hovered ? 0x101010 : 0xbebdbd });
-    title.style.fill = hovered ? 0xf2f2f2 : 0x555555;
-    diamond.style.fill = hovered ? 0xf2f2f2 : 0xaaaaaa;
+    title.style.fill = hovered ? 0xf2f2f2 : 0x000000;
     title.scale.set(1);
     title.scale.set(Math.min(1, (w - 56) / title.width));
     title.position.set(Math.round(w / 2), Math.round(BTN_H / 2));
-    diamond.visible = w >= 200;
-    diamond.position.set(22, BTN_H / 2);
     button.hitArea = new Rectangle(0, 0, w, BTN_H);
     button.pivot.x = w / 2;                       // il bottone è centrato sull'asse
   };

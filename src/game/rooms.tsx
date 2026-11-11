@@ -1,7 +1,7 @@
 import type { Rect } from "./utils_graphics";
 import { Player, PLAYER_HEIGHT, PLAYER_SPAWN_X } from "./Player";
 import type { Container } from "pixi.js";
-import { creditsSign, HERO_DESKTOP, HERO_MOBILE, offerButton, openingHero } from "./decor/intro";
+import { creditsSign, HERO_DESKTOP, HERO_MOBILE, offerButton, openingHero, ISTRUZIONI } from "./decor/intro";
 import { pit, portraitWall } from "./decor/portraits";
 import { TEAM } from "./team";
 import { iconsDecor } from "./decor/la-cura-anomala";
@@ -84,7 +84,7 @@ export const HUB: RoomConfig = {
         { platformIndex: 7, target: "/corsi", label: "Corsi" },
         { platformIndex: 9, target: "/collabs", label: "Collabs" },
     ],
-    assets: [HERO_DESKTOP, HERO_MOBILE],
+    assets: [HERO_DESKTOP, HERO_MOBILE, ISTRUZIONI],
     decor: (ctx) => [
         openingHero(HUB_PLATFORMS[0]),
         offerButton(HUB_PLATFORMS[0], () => ctx.navigate("/offerta-formativa")),

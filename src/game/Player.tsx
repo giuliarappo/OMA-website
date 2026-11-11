@@ -37,6 +37,7 @@ function drawPlayer(g: Graphics, swing: number, legSwing: number, facing: Facing
   g.rect(13 - legSwing, 38, 5, 8).fill({ color: 0xd8d8d8 });
   g.rect(facing === 1 ? 10 + legSwing : 4 + legSwing, 44, 8, 3).fill({ color: 0xffffff });
   g.rect(facing === 1 ? 16 - legSwing : 10 - legSwing, 44, 8, 3).fill({ color: 0xffffff });
+  g.zIndex = 1;
 }
 
 export class Player {
@@ -46,7 +47,7 @@ export class Player {
   y: number;
   vx = 0;
   vy = 0;
-  grounded = false;
+  grounded = true;
   onFall?: () => void;
   onJump?: () => void;
   onLand?: () => void;
@@ -57,6 +58,7 @@ export class Player {
   private time = 0;            // per l'animazione del passo
   private jumpLocked = false;  // un salto per ogni pressione del tasto
   private drawnKey = "";       // evita di ridisegnare se la posa non cambia
+  private isFalling = false;
 
   constructor(
     spawn: { x: number; y: number },
@@ -80,6 +82,7 @@ export class Player {
     this.vx = 0;
     this.vy = 0;
     this.jumpLocked = false;
+    this.isFalling = false;
   }
 
   update(dt: number, input: InputState, platforms: Rect[]) {
@@ -119,12 +122,13 @@ export class Player {
         }
       }
     }
-
-    // Caduto fuori dal mondo: riparte dallo spawn
-    if (this.y > this.world.height + 120) {
-        if (this.onFall) this.onFall();
-        else this.respawn();
+    if (!this.isFalling && this.y > 650) {
+      this.onFall?.();
+      this.isFalling = true;
     }
+    
+    // Caduto fuori dal mondo: riparte dallo spawn
+    if (this.y > this.world.height + 120) this.respawn();
 
     this.render();
   }

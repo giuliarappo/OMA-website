@@ -1,6 +1,7 @@
 import { Assets, Container, Graphics, Sprite, Texture, Text } from "pixi.js";
 import { signPanel, type Rect } from "./utils_graphics";
 import { PLAYER_SPAWN_X } from "./Player";
+import { playGameSound } from "./lib/gameAudio";
 
 export const DOOR_WIDTH = 48;
 export const DOOR_HEIGHT = 72;
@@ -110,6 +111,7 @@ export class Door {
   isNear(player: Rect) {
     const dx = Math.abs(player.x + player.w / 2 - (this.bounds.x + this.bounds.w / 2));
     const dy = Math.abs(player.y + player.h - (this.bounds.y + this.bounds.h));
+    playGameSound("nearDoor");
     return dx < 60 && dy < 40;
   }
 
