@@ -54,7 +54,9 @@ export class Game {
     
     this.player.onJump = () => playGameSound("jump");
     this.player.onLand = () => playGameSound("impatto");
+
   }
+
 
   // ---------- ciclo di vita ----------
 

@@ -8,7 +8,6 @@ export const PLAYER_SPAWN_X = 100;
 const GRAVITY = 1500;
 const WALK_SPEED = 250;
 const JUMP_SPEED = 700;
-const LAND_MIN_SPEED = 350;
 
 export type InputState = { left: boolean; right: boolean; jump: boolean };
 type Facing = 1 | -1;
@@ -112,11 +111,10 @@ export class Player {
     if (this.vy >= 0) {
       for (const platform of platforms) {
         if (previousBottom <= platform.y && overlaps(this.rect, platform)) {
-          const impact = this.vy; 
           this.y = platform.y - PLAYER_HEIGHT;
           this.vy = 0;
           this.grounded = true;
-          if (!wasGrounded && impact > LAND_MIN_SPEED) this.onLand?.();
+          if (!wasGrounded) this.onLand?.();
           break;
         }
       }

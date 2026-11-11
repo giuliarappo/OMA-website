@@ -4,8 +4,8 @@ const SOUND_URLS = {
     fallback: "/assets/SALTO_NUOVO.mp3",
   },
   fall: {
-    primary: "/assets/CADUTA2.mp3",
-    fallback: "/assets/CADUTA2.mp3",
+    primary: "/assets/CADUTA_NUOVA.mp3",
+    fallback: "/assets/CADUTA_NUOVA.mp3",
   },
   passi: {
     primary: "/assets/PASSI_NUOVO.mp3",
@@ -27,7 +27,6 @@ const audioCache = new Map<SoundName, HTMLAudioElement>();
 
 let backgroundMusic: HTMLAudioElement | null = null;
 let backgroundMusicStarted = false;
-let landContext: AudioContext | null = null;
 let walkAudio: HTMLAudioElement | null = null;
 
 
@@ -128,34 +127,6 @@ export function playDoorActivationSound() {
   }).catch(() => void context.close());
 }
 
-
-export function playLandSound(impact = 700) {
-  if (typeof window === "undefined") return;
-  const AudioContextConstructor = window.AudioContext
-    || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-  if (!AudioContextConstructor) return;
-
-  landContext ??= new AudioContextConstructor();   // uno solo, riusato
-  const context = landContext;
-  void context.resume();
-
-  const t = context.currentTime;
-  const strength = Math.max(0.35, Math.min(1, impact / 1000));
-  const oscillator = context.createOscillator();
-  const gain = context.createGain();
-
-  oscillator.type = "triangle";                    // "square" per un suono più 8-bit
-  oscillator.frequency.setValueAtTime(150, t);
-  oscillator.frequency.exponentialRampToValueAtTime(45, t + 0.1);
-  gain.gain.setValueAtTime(0.0001, t);
-  gain.gain.exponentialRampToValueAtTime(0.16 * strength, t + 0.008);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
-
-  oscillator.connect(gain);
-  gain.connect(context.destination);
-  oscillator.start(t);
-  oscillator.stop(t + 0.13);
-}
 
 export function startWalkSound() {
   if (typeof window === "undefined") return;
