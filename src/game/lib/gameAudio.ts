@@ -33,6 +33,22 @@ let backgroundMusic: HTMLAudioElement | null = null;
 let backgroundMusicStarted = false;
 let walkAudio: HTMLAudioElement | null = null;
 
+function getWalkAudio() {
+  if (!walkAudio) {
+    walkAudio = new Audio("/assets/PASSI_NUOVO.mp3");
+    walkAudio.loop = true;
+    walkAudio.preload = "auto";
+    walkAudio.volume = 0.4;
+  }
+  return walkAudio;
+}
+
+// Da chiamare all'avvio: scarica il file prima che serva
+export function preloadWalkSound() {
+  if (typeof window === "undefined") return;
+  getWalkAudio().load();
+}
+
 
 export function startBackgroundMusic() {
   if (typeof window === "undefined") return;
@@ -77,6 +93,7 @@ function getAudio(name: SoundName) {
   if (!audio) {
     audio = new Audio(SOUND_URLS[name].primary);
     audio.preload = "auto";
+    // qua si puo' regolare l'audio
     audio.addEventListener("error", () => {
       if (audio && audio.src.endsWith(SOUND_URLS[name].primary)) {
         audio.src = SOUND_URLS[name].fallback;
@@ -129,7 +146,6 @@ export function playDoorActivationSound() {
     window.setTimeout(() => void context.close(), 220);
   }).catch(() => void context.close());
 }
-
 
 export function startWalkSound() {
   if (typeof window === "undefined") return;

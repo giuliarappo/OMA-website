@@ -3,7 +3,7 @@ import { drawPlatforms, setBackdrop, type Rect } from "./utils_graphics";
 import { Door, DOOR_WIDTH } from "./Door";
 import { Player, PLAYER_HEIGHT, PLAYER_WIDTH, type InputState } from "./Player";
 import type { Decor, DecorContext, RoomConfig, ViewInfo } from "./rooms";
-import { playGameSound, startWalkSound, stopWalkSound } from "./lib/gameAudio";
+import { playGameSound, preloadGameSounds, preloadWalkSound, startWalkSound, stopWalkSound } from "./lib/gameAudio";
 
 const lastDoorUsed = new Map<string, string>();
 
@@ -82,6 +82,8 @@ export class Game {
     // Tutto ciò che serve prima di costruire la scena. Il font va caricato prima
     // di creare i Text, altrimenti vengono misurati col fallback e il centraggio sballa.
     try {
+      preloadGameSounds();
+      preloadWalkSound();
       await Promise.all([
         Door.loadAssets(),
         this.room.assets?.length ? Assets.load(this.room.assets) : undefined,
