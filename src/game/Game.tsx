@@ -28,6 +28,9 @@ export class Game {
   private destroyed = false;
   private leaving = false;
 
+  // private suonoPortaAttivo = false;
+
+
   private host: HTMLElement;
   private onEnterDoor?: (target: string) => void;
   private onEvent?: (name: string, payload?: unknown) => void;
@@ -57,6 +60,7 @@ export class Game {
     
     this.player.onJump = () => playGameSound("jump");
     this.player.onLand = () => playGameSound("impatto");
+    
 
   }
 
@@ -237,7 +241,20 @@ export class Game {
     const rect = this.player.rect;
     for (const door of this.doors) {
       const near = door.isNear(rect);
+      
+      // if (near && !this.suonoPortaAttivo) {
+      //   console.log("vicino");
+      //   playGameSound("nearDoor");
+      //   this.suonoPortaAttivo = true;
+      // }
+      
+ 
       door.update(this.elapsed, dt, near);
+      door.onPlayerNear = () => 
+        {
+          console.log("vicino");
+          playGameSound("nearDoor");
+        }
       if (near && this.keys.jump && this.player.grounded) {
         playGameSound("door")
         if (door.target) {
