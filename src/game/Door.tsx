@@ -1,7 +1,6 @@
 import { Assets, Container, Graphics, Sprite, Texture, Text } from "pixi.js";
 import { signPanel, type Rect } from "./utils_graphics";
 import { PLAYER_SPAWN_X } from "./Player";
-import { playGameSound } from "./lib/gameAudio";
 
 export const DOOR_WIDTH = 48;
 export const DOOR_HEIGHT = 72;
