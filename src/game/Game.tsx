@@ -250,7 +250,7 @@ export class Game {
       door.update(this.elapsed, dt, near);
       
       if (near && this.keys.jump && this.player.grounded) {
-        playGameSound("door")
+        playGameSound("door");
         if (door.target) {
             if (door.kind !== "exit") lastDoorUsed.set(this.room.id, door.target);
                 this.leave(door.target);
