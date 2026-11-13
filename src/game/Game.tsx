@@ -6,6 +6,7 @@ import type { Decor, DecorContext, RoomConfig, ViewInfo } from "./rooms";
 import { playGameSound, preloadGameSounds, preloadWalkSound, startWalkSound, stopWalkSound } from "./lib/gameAudio";
 
 const lastDoorUsed = new Map<string, string>();
+const NOISE_ASSET = "/assets/noise.png";
 
 export class Game {
   private app = new Application();
@@ -86,7 +87,7 @@ export class Game {
       preloadWalkSound();
       await Promise.all([
         Door.loadAssets(),
-        this.room.assets?.length ? Assets.load(this.room.assets) : undefined,
+        this.room.assets?.length ? Assets.load([NOISE_ASSET, ...(this.room.assets ?? [])]) : undefined,
         document.fonts?.load('12px "Press Start 2P"').catch(() => undefined),
       ]);
     } catch (err) {
