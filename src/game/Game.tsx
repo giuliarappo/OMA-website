@@ -6,7 +6,6 @@ import type { Decor, DecorContext, RoomConfig, ViewInfo } from "./rooms";
 import { playGameSound, preloadGameSounds, preloadWalkSound, startWalkSound, stopWalkSound } from "./lib/gameAudio";
 
 const lastDoorUsed = new Map<string, string>();
-const NOISE_ASSET = "/assets/noise.png";
 
 export class Game {
   private app = new Application();
