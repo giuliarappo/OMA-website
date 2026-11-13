@@ -117,9 +117,28 @@ export function playGameSound(name: SoundName) {
   if (typeof window === "undefined") return;
   const audio = getAudio(name);
   audio.currentTime = 0;
-  void audio.play().catch(() => {
-    // L'audio può essere bloccato dal browser finché non arriva un gesto dell'utente.
+  void audio.play().catch((err) => {
+    console.error(err);
   });
+  
+}
+
+export function playGameSoundThen(name: SoundName, callback: () => void, maxMs = 600) {
+  if (typeof window === "undefined") return;
+  const audio = getAudio(name);
+
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    audio.removeEventListener("ended", finish);
+    callback()
+  }
+  audio.addEventListener("ended", finish);
+  window.setTimeout(finish, maxMs);   // se il suono è più lungo o bloccato, non aspetta all'infinito
+  audio.currentTime = 0;
+  void audio.play().catch(finish);
+  
 }
 
 export function playDoorActivationSound() {
