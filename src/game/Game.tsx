@@ -3,7 +3,7 @@ import { drawPlatforms, setBackdrop, type Rect } from "./utils_graphics";
 import { Door, DOOR_WIDTH } from "./Door";
 import { Player, PLAYER_HEIGHT, PLAYER_WIDTH, type InputState } from "./Player";
 import type { Decor, DecorContext, RoomConfig, ViewInfo } from "./rooms";
-import { playGameSound, preloadGameSounds, preloadWalkSound, startWalkSound, stopWalkSound } from "./lib/gameAudio";
+import { playGameSound, playGameSoundThen, preloadGameSounds, preloadWalkSound, startWalkSound, stopWalkSound } from "./lib/gameAudio";
 
 const lastDoorUsed = new Map<string, string>();
 
@@ -241,6 +241,15 @@ export class Game {
     this.updateCamera(dt);
   };
 
+  // Entra nella porta: blocca il gioco, riproduce il suono e naviga quando è finito
+  private leaveAfterSound(target: string) {
+    if (this.leaving) return;
+    this.leaving = true;   // ferma loop e input subito
+    stopWalkSound();
+    playGameSoundThen("door", () => {
+      if (!this.destroyed) this.onEnterDoor?.(target);
+    }, 500);
+  }
   // Ritorna true se il personaggio è entrato in una porta
   private updateDoors(dt: number): boolean {
     const rect = this.player.rect;
@@ -253,7 +262,7 @@ export class Game {
         playGameSound("door");
         if (door.target) {
             if (door.kind !== "exit") lastDoorUsed.set(this.room.id, door.target);
-                this.leave(door.target);
+                this.leaveAfterSound(door.target);
         }
         return true;
       }
