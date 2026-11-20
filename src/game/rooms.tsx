@@ -101,7 +101,7 @@ export const COSA_FACCIAMO: RoomConfig = {
     platforms: [{ x: -500, y: 650, w: 2000, h: 80 }],
     doors: [
         { platformIndex: 0, target: "/", kind: "exit" },
-        { platformIndex: 0, target: "/progetti/la-cura-anomala", x: 450 },
+        { platformIndex: 0, target: "/progetti/la-cura-anomala", label: "La cura anomala", x: 450 },
         { platformIndex: 0, target: "/progetti/due", x: 700 },
     ],
 };
