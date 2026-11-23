@@ -28,9 +28,6 @@ export class Game {
   private destroyed = false;
   private leaving = false;
 
-  // private suonoPortaAttivo = false;
-
-
   private host: HTMLElement;
   private onEnterDoor?: (target: string) => void;
   private onEvent?: (name: string, payload?: unknown) => void;
@@ -259,7 +256,6 @@ export class Game {
       door.update(this.elapsed, dt, near);
       
       if (near && this.keys.jump && this.player.grounded) {
-        playGameSound("door");
         if (door.target) {
             if (door.kind !== "exit") lastDoorUsed.set(this.room.id, door.target);
                 this.leaveAfterSound(door.target);
