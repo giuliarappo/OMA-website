@@ -20,35 +20,120 @@ const SOUND_URLS = {
     fallback: "/assets/PORTA2.mp3",
   },
   nearDoor: {
-    primary: "/assets/SUONO_PORTA.mp3",
-    fallback: "/assets/SUONO_PORTA.mp3"
+    primary: "/assets/BUSSO.mp3",
+    fallback: "/assets/BUSSO.mp3"
   }
   
 } as const;
 
 type SoundName = keyof typeof SOUND_URLS;
-const audioCache = new Map<SoundName, HTMLAudioElement>();
+
+// ---------------------------------------------------------------------------
+// Web Audio engine
+// Safari è molto lento con <audio> + currentTime = 0 + play() (e al primo play
+// deve anche scaricare e decodificare l'mp3): da qui i lag a ogni salto.
+// Qui i suoni vengono scaricati e decodificati UNA volta in AudioBuffer e poi
+// riprodotti con BufferSource, che parte in modo praticamente istantaneo.
+// ---------------------------------------------------------------------------
+
+type AudioContextCtor = typeof AudioContext;
+
+let ctx: AudioContext | null = null;
+let masterGain: GainNode | null = null;
+const buffers = new Map<SoundName, AudioBuffer>();
+const loading = new Map<SoundName, Promise<void>>();
+let unlockBound = false;
+
+function getContext(): AudioContext | null {
+  if (typeof window === "undefined") return null;
+  if (ctx) return ctx;
+  const Ctor: AudioContextCtor | undefined =
+    window.AudioContext ||
+    (window as Window & { webkitAudioContext?: AudioContextCtor }).webkitAudioContext;
+  if (!Ctor) return null;
+  ctx = new Ctor();
+  masterGain = ctx.createGain();
+  masterGain.connect(ctx.destination);
+  return ctx;
+}
+
+// Safari crea il contesto "suspended": va ripreso dentro un gesto dell'utente.
+function bindUnlock() {
+  if (unlockBound || typeof window === "undefined") return;
+  unlockBound = true;
+  const events = ["pointerdown", "touchstart", "keydown"] as const;
+  const unlock = () => {
+    const c = getContext();
+    if (c && c.state !== "running") void c.resume().catch(() => {});
+    if (c && c.state === "running") {
+      events.forEach((e) => window.removeEventListener(e, unlock));
+      unlockBound = false;
+    }
+  };
+  events.forEach((e) => window.addEventListener(e, unlock, { passive: true }));
+}
+
+function decode(c: AudioContext, data: ArrayBuffer): Promise<AudioBuffer> {
+  // Safari vecchio supporta solo la versione con callback
+  return new Promise((resolve, reject) => {
+    const maybe = c.decodeAudioData(data, resolve, reject);
+    if (maybe && typeof maybe.then === "function") maybe.then(resolve, reject);
+  });
+}
+
+function loadSound(name: SoundName): Promise<void> {
+  const existing = loading.get(name);
+  if (existing) return existing;
+  const c = getContext();
+  if (!c) return Promise.resolve();
+
+  const promise = (async () => {
+    try {
+      const res = await fetch(SOUND_URLS[name].primary);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const buf = await decode(c, await res.arrayBuffer());
+      buffers.set(name, buf);
+    } catch (err) {
+      console.warn(`[audio] impossibile caricare "${name}":`, err);
+      loading.delete(name); // permette un nuovo tentativo
+    }
+  })();
+  loading.set(name, promise);
+  return promise;
+}
+
+export function preloadGameSounds() {
+  if (typeof window === "undefined") return;
+  bindUnlock();
+  (Object.keys(SOUND_URLS) as SoundName[]).forEach((name) => void loadSound(name));
+}
+
+export function playGameSound(name: SoundName, volume = 1) {
+  const c = getContext();
+  if (!c || !masterGain) return;
+  bindUnlock();
+  if (c.state === "suspended") void c.resume().catch(() => {});
+
+  const buffer = buffers.get(name);
+  if (!buffer) {
+    void loadSound(name); // non ancora pronto: lo carico per le prossime volte
+    return;
+  }
+
+  const source = c.createBufferSource();
+  source.buffer = buffer;
+  if (volume !== 1) {
+    const g = c.createGain();
+    g.gain.value = volume;
+    source.connect(g).connect(masterGain);
+  } else {
+    source.connect(masterGain);
+  }
+  source.start(0);
+}
 
 let backgroundMusic: HTMLAudioElement | null = null;
 let backgroundMusicStarted = false;
-let walkAudio: HTMLAudioElement | null = null;
-
-function getWalkAudio() {
-  if (!walkAudio) {
-    walkAudio = new Audio("/assets/PASSI_NUOVO.mp3");
-    walkAudio.loop = true;
-    walkAudio.preload = "auto";
-    walkAudio.volume = 0.4;
-  }
-  return walkAudio;
-}
-
-// Da chiamare all'avvio: scarica il file prima che serva
-export function preloadWalkSound() {
-  if (typeof window === "undefined") return;
-  getWalkAudio().load();
-}
-
 
 export function startBackgroundMusic() {
   if (typeof window === "undefined") return;
@@ -88,59 +173,6 @@ export function setBackgroundMusicVolume(volume: number) {
 }
 
 
-function getAudio(name: SoundName) {
-  let audio = audioCache.get(name);
-  if (!audio) {
-    audio = new Audio(SOUND_URLS[name].primary);
-    audio.preload = "auto";
-    // qua si puo' regolare l'audio
-    audio.addEventListener("error", () => {
-      if (audio && audio.src.endsWith(SOUND_URLS[name].primary)) {
-        audio.src = SOUND_URLS[name].fallback;
-        audio.load();
-      }
-    });
-    audioCache.set(name, audio);
-  }
-  return audio;
-}
-
-export function preloadGameSounds() {
-  if (typeof window === "undefined") return;
-  (Object.keys(SOUND_URLS) as SoundName[]).forEach((name) => {
-    const audio = getAudio(name);
-    audio.load();
-  });
-}
-
-export function playGameSound(name: SoundName) {
-  if (typeof window === "undefined") return;
-  const audio = getAudio(name);
-  audio.currentTime = 0;
-  void audio.play().catch((err) => {
-    console.error(err);
-  });
-  
-}
-
-export function playGameSoundThen(name: SoundName, callback: () => void, maxMs = 600) {
-  if (typeof window === "undefined") return;
-  const audio = getAudio(name);
-
-  let done = false;
-  const finish = () => {
-    if (done) return;
-    done = true;
-    audio.removeEventListener("ended", finish);
-    callback()
-  }
-  audio.addEventListener("ended", finish);
-  window.setTimeout(finish, maxMs);   // se il suono è più lungo o bloccato, non aspetta all'infinito
-  audio.currentTime = 0;
-  void audio.play().catch(finish);
-  
-}
-
 export function playDoorActivationSound() {
   if (typeof window === "undefined") return;
   const AudioContextConstructor = window.AudioContext
@@ -166,22 +198,43 @@ export function playDoorActivationSound() {
   }).catch(() => void context.close());
 }
 
+
+let walkSource: AudioBufferSourceNode | null = null;
+let walkGain: GainNode | null = null;
+const WALK_VOLUME = 0.4;
+
 export function startWalkSound() {
-  if (typeof window === "undefined") return;
-
-  if (!walkAudio) {
-    walkAudio = new Audio("assets/PASSI_NUOVO.mp3");
-    walkAudio.loop = true;
-    walkAudio.preload = "auto"
-    walkAudio.volume = 0.4;
+  if (walkSource) return;
+  const c = getContext();
+  if (!c || !masterGain) return;
+  const buffer = buffers.get("passi");
+  if (!buffer) {
+    void loadSound("passi");
+    return;
   }
-  if (!walkAudio.paused) return;
+  if (c.state === "suspended") void c.resume().catch(() => {});
 
-  void walkAudio.play().catch((err) => console.error(err)) 
+  walkGain = c.createGain();
+  walkGain.gain.value = WALK_VOLUME;
+  walkGain.connect(masterGain);
+
+  const source = c.createBufferSource();
+  source.buffer = buffer;
+  source.loop = true;
+  source.connect(walkGain);
+  source.start(0);
+  walkSource = source;
 }
 
 export function stopWalkSound() {
-  if (!walkAudio || walkAudio.paused) return;
-  walkAudio.pause();
-  walkAudio.currentTime = 0;
+  if (!walkSource) return;
+  try {
+    walkSource.stop();
+  } catch {
+    // già fermato
+  }
+  walkSource.disconnect();
+  walkGain?.disconnect();
+  walkSource = null;
+  walkGain = null;
 }

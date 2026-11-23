@@ -3,7 +3,7 @@ import { drawPlatforms, setBackdrop, type Rect } from "./utils_graphics";
 import { Door, DOOR_WIDTH } from "./Door";
 import { Player, PLAYER_HEIGHT, PLAYER_WIDTH, type InputState } from "./Player";
 import type { Decor, DecorContext, RoomConfig, ViewInfo } from "./rooms";
-import { playGameSound, playGameSoundThen, preloadGameSounds, preloadWalkSound, startWalkSound, stopWalkSound } from "./lib/gameAudio";
+import { playGameSound, preloadGameSounds, startWalkSound, stopWalkSound } from "./lib/gameAudio";
 
 const lastDoorUsed = new Map<string, string>();
 
@@ -47,6 +47,9 @@ export class Game {
     this.onEvent = onEvent;
     this.platforms = room.platforms;
 
+    // Scarica e decodifica i suoni in anticipo (evita lag al primo salto)
+    preloadGameSounds();
+
     this.player = new Player(room.spawn, {
       width: room.worldWidth,
       height: room.worldHeight,
@@ -82,8 +85,6 @@ export class Game {
     // Tutto ciò che serve prima di costruire la scena. Il font va caricato prima
     // di creare i Text, altrimenti vengono misurati col fallback e il centraggio sballa.
     try {
-      preloadGameSounds();
-      preloadWalkSound();
       await Promise.all([
         Door.loadAssets(),
         this.room.assets?.length ? Assets.load(this.room.assets) : undefined,
@@ -147,10 +148,7 @@ export class Game {
           label: d.label
         }),
     );
-    this.doors.forEach((d) => {
-      d.onPlayerNear = () => playGameSound("nearDoor");
-      this.world.addChild(d.view);
-    }) 
+    this.doors.forEach((d) => this.world.addChild(d.view));
 
     // Ritorno da un'altra stanza: riappari accanto alla porta da cui eri uscito
     const back = lastDoorUsed.get(this.room.id);
@@ -241,28 +239,30 @@ export class Game {
     this.updateCamera(dt);
   };
 
-  // Entra nella porta: blocca il gioco, riproduce il suono e naviga quando è finito
-  private leaveAfterSound(target: string) {
-    if (this.leaving) return;
-    this.leaving = true;   // ferma loop e input subito
-    stopWalkSound();
-    playGameSoundThen("door", () => {
-      if (!this.destroyed) this.onEnterDoor?.(target);
-    }, 1000);
-  }
   // Ritorna true se il personaggio è entrato in una porta
   private updateDoors(dt: number): boolean {
     const rect = this.player.rect;
     for (const door of this.doors) {
       const near = door.isNear(rect);
-
-      door.update(this.elapsed, dt, near);
       
+      // if (near && !this.suonoPortaAttivo) {
+      //   console.log("vicino");
+      //   playGameSound("nearDoor");
+      //   this.suonoPortaAttivo = true;
+      // }
+      
+ 
+      door.update(this.elapsed, dt, near);
+      door.onPlayerNear = () => 
+        {
+          console.log("vicino");
+          playGameSound("nearDoor");
+        }
       if (near && this.keys.jump && this.player.grounded) {
-        playGameSound("door");
+        playGameSound("door")
         if (door.target) {
             if (door.kind !== "exit") lastDoorUsed.set(this.room.id, door.target);
-                this.leaveAfterSound(door.target);
+                this.leave(door.target);
         }
         return true;
       }
