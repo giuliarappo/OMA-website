@@ -20,10 +20,9 @@ const SOUND_URLS = {
     fallback: "/assets/PORTA2.mp3",
   },
   nearDoor: {
-    primary: "/assets/BUSSO.mp3",
-    fallback: "/assets/BUSSO.mp3"
-  }
-  
+    primary: "/assets/SUONO_PORTA.mp3",
+    fallback: "/assets/SUONO_PORTA.mp3",
+  },
 } as const;
 
 type SoundName = keyof typeof SOUND_URLS;
@@ -108,16 +107,25 @@ export function preloadGameSounds() {
   (Object.keys(SOUND_URLS) as SoundName[]).forEach((name) => void loadSound(name));
 }
 
-export function playGameSound(name: SoundName, volume = 1) {
+// Compatibilità: il suono dei passi è già incluso in preloadGameSounds(),
+// ma Game.tsx la chiama esplicitamente (loadSound evita i caricamenti doppi).
+export function preloadWalkSound() {
+  if (typeof window === "undefined") return;
+  bindUnlock();
+  void loadSound("passi");
+}
+
+// Avvia un suono già decodificato. Ritorna la sorgente, o null se non è pronto.
+function startSource(name: SoundName, volume = 1): AudioBufferSourceNode | null {
   const c = getContext();
-  if (!c || !masterGain) return;
+  if (!c || !masterGain) return null;
   bindUnlock();
   if (c.state === "suspended") void c.resume().catch(() => {});
 
   const buffer = buffers.get(name);
   if (!buffer) {
     void loadSound(name); // non ancora pronto: lo carico per le prossime volte
-    return;
+    return null;
   }
 
   const source = c.createBufferSource();
@@ -130,7 +138,39 @@ export function playGameSound(name: SoundName, volume = 1) {
     source.connect(masterGain);
   }
   source.start(0);
+  return source;
 }
+
+export function playGameSound(name: SoundName, volume = 1) {
+  startSource(name, volume);
+}
+
+// Riproduce un suono e chiama callback quando finisce.
+// Se il suono non è pronto, o dura più di maxMs, non aspetta all'infinito.
+export function playGameSoundThen(name: SoundName, callback: () => void, maxMs = 600) {
+  if (typeof window === "undefined") return;
+
+  let done = false;
+  let timer = 0;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    window.clearTimeout(timer);
+    callback();
+  };
+
+  const source = startSource(name);
+  if (!source) {
+    finish(); // niente audio disponibile: non bloccare la navigazione
+    return;
+  }
+  source.onended = finish;
+  timer = window.setTimeout(finish, maxMs);
+}
+
+// ---------------------------------------------------------------------------
+// Musica di sottofondo (resta su <audio>: è un file lungo in loop)
+// ---------------------------------------------------------------------------
 
 let backgroundMusic: HTMLAudioElement | null = null;
 let backgroundMusicStarted = false;
@@ -172,7 +212,6 @@ export function setBackgroundMusicVolume(volume: number) {
   backgroundMusic.volume = Math.max(0, Math.min(1, volume));
 }
 
-
 export function playDoorActivationSound() {
   if (typeof window === "undefined") return;
   const AudioContextConstructor = window.AudioContext
@@ -198,6 +237,9 @@ export function playDoorActivationSound() {
   }).catch(() => void context.close());
 }
 
+// ---------------------------------------------------------------------------
+// Passi (loop con BufferSource)
+// ---------------------------------------------------------------------------
 
 let walkSource: AudioBufferSourceNode | null = null;
 let walkGain: GainNode | null = null;
