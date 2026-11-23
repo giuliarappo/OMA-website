@@ -54,11 +54,11 @@ export interface IconItem {
 
 const HUB_PLATFORMS: Rect[] = [
     { x: 0, y: 650, w: 700, h: 80 },
-    { x: 820, y: 650, w: 520, h: 80 },
-    { x: 1500, y: 650, w: 680, h: 80 },
-    { x: 2350, y: 650, w: 540, h: 80 },
+    { x: 820, y: 650, w: 1000, h: 80 },
+    { x: 1940, y: 650, w: 540, h: 80 },
     { x: 3060, y: 650, w: 940, h: 80 },
-    { x: 1080, y: 520, w: 420, h: 24 },
+    { x: 700, y: 400, w: 300, h: 24 },
+    { x: 1000, y: 520, w: 420, h: 24 },
     { x: 1660, y: 500, w: 460, h: 24 },
     { x: 2110, y: 390, w: 430, h: 24 },
     { x: 2520, y: 500, w: 450, h: 24 },
@@ -80,7 +80,7 @@ export const HUB: RoomConfig = {
     platforms: HUB_PLATFORMS,
     doors: [
         { platformIndex: 5, target: "/cosa-facciamo", label: "Cosa facciamo" },
-        { platformIndex: 6, target: "/chi-siamo", label: "Chi siamo" },
+        { platformIndex: 4, target: "/chi-siamo", label: "Chi siamo" },
         { platformIndex: 7, target: "/corsi", label: "Corsi" },
         { platformIndex: 9, target: "/collabs", label: "Collabs" },
     ],
@@ -88,7 +88,7 @@ export const HUB: RoomConfig = {
     decor: (ctx) => [
         openingHero(HUB_PLATFORMS[0]),
         offerButton(HUB_PLATFORMS[0], () => ctx.navigate("/offerta-formativa")),
-        creditsSign("Realizzato da:\nGiulia Rappo, Antonio Russo", HUB_PLATFORMS[4]),
+        creditsSign("Realizzato da:\nGiulia Rappo, Antonio Russo", HUB_PLATFORMS[3]),
     ],
 };
 
