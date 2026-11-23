@@ -12,6 +12,7 @@ export default function GameCanvas({ room }: { room: RoomConfig }) {
   const gameRef = useRef<Game | null>(null);          // NUOVO: ponte verso i bottoni
   const [, navigate] = useLocation();
   const [memberId, setMemberId] = useState<string | null>(null);
+  const frecciaDx = 
 
   useEffect(() => {
     const game = new Game(hostRef.current!, room, navigate, (name, payload) => {
@@ -51,9 +52,9 @@ export default function GameCanvas({ room }: { room: RoomConfig }) {
       <div ref={hostRef} className="game-shell" />
       <div className="game-vignette" aria-hidden="true" />
       <div className="touch-controls" aria-label="Controlli touch">
-        <button type="button" className="touch-button touch-left" aria-label="Sinistra" {...touch("left")}>←</button>
-        <button type="button" className="touch-button touch-right" aria-label="Destra" {...touch("right")}>→</button>
-        <button type="button" className="touch-button touch-jump" aria-label="Salta o entra" {...touch("jump")}>↑</button>
+        <button type="button" className="touch-button touch-left" aria-label="Sinistra" {...touch("left")}>&lt;</button>
+        <button type="button" className="touch-button touch-right" aria-label="Destra" {...touch("right")}>&gt;</button>
+        <button type="button" className="touch-button touch-jump" aria-label="Salta o entra" {...touch("jump")}>&#x2227;</button>
       </div>
       <div className="mobile-note">TOUCH MODE / HOLD TO MOVE</div>
       {member && <MemberModal member={member} onClose={() => setMemberId(null)} />}

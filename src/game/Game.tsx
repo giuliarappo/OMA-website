@@ -86,7 +86,7 @@ export class Game {
       preloadWalkSound();
       await Promise.all([
         Door.loadAssets(),
-        this.room.assets?.length ? Assets.load([NOISE_ASSET, ...(this.room.assets ?? [])]) : undefined,
+        this.room.assets?.length ? Assets.load(this.room.assets) : undefined,
         document.fonts?.load('12px "Press Start 2P"').catch(() => undefined),
       ]);
     } catch (err) {
@@ -248,7 +248,7 @@ export class Game {
     stopWalkSound();
     playGameSoundThen("door", () => {
       if (!this.destroyed) this.onEnterDoor?.(target);
-    }, 500);
+    }, 1000);
   }
   // Ritorna true se il personaggio è entrato in una porta
   private updateDoors(dt: number): boolean {
