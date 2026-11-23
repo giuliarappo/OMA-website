@@ -12,7 +12,6 @@ export default function GameCanvas({ room }: { room: RoomConfig }) {
   const gameRef = useRef<Game | null>(null);          // NUOVO: ponte verso i bottoni
   const [, navigate] = useLocation();
   const [memberId, setMemberId] = useState<string | null>(null);
-  const frecciaDx = 
 
   useEffect(() => {
     const game = new Game(hostRef.current!, room, navigate, (name, payload) => {
