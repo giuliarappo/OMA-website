@@ -12,6 +12,8 @@ export interface DoorConfig {
   kind?: "platform" | "exit";
   x?: number;
   label?: string;
+  dist?: number;
+  promptDist?: number
 }
 
 export interface RoomConfig {
@@ -57,7 +59,7 @@ const HUB_PLATFORMS: Rect[] = [
     { x: 820, y: 650, w: 1000, h: 80 },
     { x: 1940, y: 650, w: 540, h: 80 },
     { x: 3060, y: 650, w: 940, h: 80 },
-    { x: 700, y: 400, w: 300, h: 24 },
+    { x: 650, y: 400, w: 300, h: 24 },
     { x: 1000, y: 520, w: 420, h: 24 },
     { x: 1660, y: 500, w: 460, h: 24 },
     { x: 2110, y: 390, w: 430, h: 24 },
@@ -79,10 +81,9 @@ export const HUB: RoomConfig = {
     groundY: 650,
     platforms: HUB_PLATFORMS,
     doors: [
-        { platformIndex: 5, target: "/cosa-facciamo", label: "Cosa facciamo" },
-        { platformIndex: 4, target: "/chi-siamo", label: "Chi siamo" },
-        { platformIndex: 7, target: "/corsi", label: "Corsi" },
-        { platformIndex: 9, target: "/collabs", label: "Collabs" },
+        { platformIndex: 7, target: "/cosa-facciamo", label: "LA CURA ANOMALA", dist: 40 },
+        { platformIndex: 4, target: "/chi-siamo", label: "CHI SIAMO", dist: 40 },
+        { platformIndex: 5, target: "/corsi", label: "LABORATORI", dist: 55 },
     ],
     assets: [HERO_DESKTOP, HERO_MOBILE, ISTRUZIONI],
     decor: (ctx) => [

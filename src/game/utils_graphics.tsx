@@ -10,9 +10,9 @@ export function drawPlatforms(platforms: Rect[]): Graphics {
     g.rect(platform.x, platform.y, platform.w, platform.h).fill({ color: 0xf2f2f2 });
     g.rect(platform.x, platform.y, platform.w, 5).fill({ color: 0xffffff });
     g.rect(platform.x, platform.y + platform.h - 6, platform.w, 6).fill({ color: 0x8a8a8a });
-    for (let x = platform.x + 12; x < platform.x + platform.w - 8; x += 28) {
-      g.rect(x, platform.y + 13, 11, 4).fill({ color: 0xbcbcbc, alpha: 0.75 });
-    }
+    // for (let x = platform.x + 12; x < platform.x + platform.w - 8; x += 28) {
+    //   g.rect(x, platform.y + 13, 11, 4).fill({ color: 0xbcbcbc, alpha: 0.75 });
+    // }
   }
 
   return g;
@@ -50,4 +50,13 @@ export function signPanel(w: number, h: number): Graphics {
     g.rect(x + 1, y + 1, 3, 1).fill({ color: 0xd8d8d8 });
   }
   return g;
+}
+
+export function getImageUrl(name: string) {
+  const file = name
+    .trim()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/\s+/g, "_");
+  return `/assets/${file}.png`;
 }

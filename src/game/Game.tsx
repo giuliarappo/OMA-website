@@ -141,7 +141,8 @@ export class Game {
           kind: d.kind,
           x: d.x,
           spawnX: spawn.x,
-          label: d.label
+          label: d.label,
+          dist: d.dist,
         }),
     );
     this.doors.forEach((d) => {

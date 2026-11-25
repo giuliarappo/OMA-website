@@ -1,5 +1,5 @@
 import { Assets, Container, Graphics, Sprite, Texture, Text } from "pixi.js";
-import { signPanel, type Rect } from "./utils_graphics";
+import { getImageUrl, type Rect } from "./utils_graphics";
 import { PLAYER_SPAWN_X } from "./Player";
 
 export const DOOR_WIDTH = 48;
@@ -8,7 +8,7 @@ export const DOOR_HEIGHT = 72;
 export const DOOR_PROMPT_ASSET = "/assets/door-prompt.png";
 
 const PROMPT_WIDTH = 28;
-const PROMPT_GAP = 10;
+const PROMPT_DIST = 40;
 
 const SIGN_BOTTOM = 56;
 const SIGN_HEIGHT = 40;
@@ -22,6 +22,7 @@ type DoorOptions = {
   x?: number;      
   spawnX?: number;
 	label?: string;
+  dist?: number;
 };
 
 export class Door {
@@ -33,9 +34,9 @@ export class Door {
   static async loadAssets() {
     if (Door.promptTexture) return;
     try {
-      const texture = await Assets.load<Texture>(DOOR_PROMPT_ASSET);
-      texture.source.scaleMode = "nearest"; // pixel art nitida
-      Door.promptTexture = texture;
+      const promptTexture = await Assets.load<Texture>(DOOR_PROMPT_ASSET);
+      promptTexture.source.scaleMode = "nearest"; // pixel art nitida
+      Door.promptTexture = promptTexture;
     } catch {
       console.warn("[Door] immagine della freccia non trovata:", DOOR_PROMPT_ASSET);
     }
@@ -54,7 +55,6 @@ export class Door {
   private isLit = false;
 
   constructor(platform: Rect, options: DoorOptions = {}) {
-
 		
     const { kind = "platform", target, spawnX = PLAYER_SPAWN_X } = options;
 		this.target = target;
@@ -72,13 +72,14 @@ export class Door {
     this.drawFrame(false);
 
 		const text = options.label ?? (kind === "exit" ? "Uscita" : undefined);
-		if (text) this.addSign(text);
+		if (text) this.addSign(text, options.dist);
+
 
     if (Door.promptTexture) {
       const arrow = new Sprite(Door.promptTexture);
       arrow.anchor.set(0.5, 1); // origine al centro in basso
       arrow.scale.set(PROMPT_WIDTH / Door.promptTexture.width);
-      arrow.position.set(DOOR_WIDTH / 2, -PROMPT_GAP);
+      arrow.position.set(DOOR_WIDTH / 2, -PROMPT_DIST);
       arrow.alpha = 0;
       this.view.addChild(arrow);
       this.prompt = arrow;
@@ -94,7 +95,7 @@ export class Door {
   	return Math.max(platform.x + 8, spawnX - DOOR_WIDTH - 20);
 	}
 
-	private addSign(label: string) {
+	private async addSign(label: string, dist: number) {
 		const text = new Text({
 			text: label,
 			style: { fontFamily: '"Press Start 2P", monospace', fontSize: 12, fill: 0x080808 },
@@ -102,10 +103,12 @@ export class Door {
 		text.anchor.set(0.5);
 		if (text.width > SIGN_MAX_TEXT) text.scale.set(SIGN_MAX_TEXT / text.width); // testi lunghi: rimpiccioliti
 
-		const w = Math.ceil(text.width) + 32;
-		const sign = new Container({ label: "door-sign" });
-		sign.addChild(signPanel(w, SIGN_HEIGHT), text);
-		sign.position.set(DOOR_WIDTH / 2, Math.round(-SIGN_BOTTOM - SIGN_HEIGHT / 2));
+    const signTexture = await Assets.load(getImageUrl(label));
+		const sign = new Sprite(signTexture);
+    sign.scale.set(0.2);
+    sign.anchor.set(0.5, 0.5);
+		sign.position.set(DOOR_WIDTH / 2, Math.round(-SIGN_BOTTOM - SIGN_HEIGHT / 2 + dist));
+    
 		this.view.addChild(sign);
 	}
 
@@ -135,7 +138,7 @@ export class Door {
     // Freccia: appare con la dissolvenza e fluttua su e giù
     if (this.prompt) {
       this.prompt.alpha = this.amount;
-      this.prompt.y = -PROMPT_GAP + Math.sin(time * 5) * 3;
+      this.prompt.y = -PROMPT_DIST + Math.sin(time * 5) * 3;
     }
 
     // Ridisegna la porta solo quando cambia stato
