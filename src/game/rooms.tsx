@@ -27,6 +27,7 @@ export interface RoomConfig {
     assets?: string[];
     fallTarget?: string;                       // se cadi fuori dal mondo vai qui (altrimenti respawn)
     decor?: (ctx: DecorContext) => Decor[];
+    music?: boolean;
 }
 
 export interface ViewInfo {
@@ -81,16 +82,17 @@ export const HUB: RoomConfig = {
     groundY: 650,
     platforms: HUB_PLATFORMS,
     doors: [
-        { platformIndex: 7, target: "/cosa-facciamo", label: "LA CURA ANOMALA", dist: 40 },
-        { platformIndex: 4, target: "/chi-siamo", label: "CHI SIAMO", dist: 40 },
+        { platformIndex: 7, target: "/cosa-facciamo", label: "LA CURA ANOMALA", dist: 55 },
+        { platformIndex: 4, target: "/chi-siamo", label: "CHI SIAMO", dist: 55 },
         { platformIndex: 5, target: "/corsi", label: "LABORATORI", dist: 55 },
     ],
     assets: [HERO_DESKTOP, HERO_MOBILE, ISTRUZIONI],
     decor: (ctx) => [
         openingHero(HUB_PLATFORMS[0]),
-        offerButton(HUB_PLATFORMS[0], () => ctx.navigate("/offerta-formativa")),
+        offerButton(HUB_PLATFORMS[0], () => ctx.navigate("/contattaci")),
         creditsSign("Realizzato da:\nGiulia Rappo, Antonio Russo", HUB_PLATFORMS[3]),
     ],
+    music: true
 };
 
 export const COSA_FACCIAMO: RoomConfig = {

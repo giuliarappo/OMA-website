@@ -179,7 +179,7 @@ export function startBackgroundMusic() {
   if (typeof window === "undefined") return;
 
   if (!backgroundMusic) {
-    backgroundMusic = new Audio("/assets/audio_bg.mp3");
+    backgroundMusic = new Audio("/assets/SOTTOFONDO.mp3");
     backgroundMusic.loop = true;
     backgroundMusic.preload = "auto";
     backgroundMusic.volume = 0.28;
@@ -191,9 +191,8 @@ export function startBackgroundMusic() {
 
   backgroundMusicStarted = true;
 
-  void backgroundMusic.play().catch(() => {
-    // Il browser può bloccare l'audio finché l'utente
-    // non compie un gesto, come un click o un tap.
+  void backgroundMusic.play().catch((err) => {
+    console.warn("[music] play() fallito:", err?.name, err?.message);
     backgroundMusicStarted = false;
   });
 }

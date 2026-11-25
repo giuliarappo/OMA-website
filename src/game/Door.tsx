@@ -72,7 +72,7 @@ export class Door {
     this.drawFrame(false);
 
 		const text = options.label ?? (kind === "exit" ? "Uscita" : undefined);
-		if (text) this.addSign(text, options.dist);
+		if (text) this.addSign(text, options.dist ? options.dist : 40);
 
 
     if (Door.promptTexture) {
